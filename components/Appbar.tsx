@@ -5,18 +5,19 @@ import { signIn, useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Loader } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function Appbar() {
     const [initialLoading, setInitialLoading] = useState(true);
     const [animateNav, setAnimateNav] = useState(false);
     const { data: session, status } = useSession();
+    const router = useRouter();
 
     useEffect(() => {
         if(status !== "loading") {
             setInitialLoading(false);
         }
-        
-        // Add animation on mount
+
         setTimeout(() => {
             setAnimateNav(true);
         }, 100);
@@ -26,7 +27,7 @@ export default function Appbar() {
         <div className={`flex h-16 bg-white w-full items-center justify-between border-b border-gray-100 px-12 transition-all duration-500 ${
             animateNav ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'
         } sticky top-0 z-50 backdrop-blur-sm bg-white/90`}>
-            <div className="flex items-center gap-2 justify-center h-16 group cursor-pointer transition-transform duration-300 hover:scale-105">
+            <div onClick={() => router.push('/')} className="flex items-center gap-2 justify-center h-16 group cursor-pointer transition-transform duration-300 hover:scale-105">
                 <div className="relative overflow-hidden">
                     <Image 
                         src="/logo-veinai.png" 
@@ -46,12 +47,22 @@ export default function Appbar() {
                     <Loader size={24} className="animate-spin text-purple-500" />
                 ) : (
                     !session ? (
-                        <Button 
-                            onClick={() => signIn("google")} 
-                            className="cursor-pointer bg-black text-white transition-all duration-300 hover:bg-gradient-to-r hover:from-purple-600 hover:to-pink-600 hover:shadow-md"
-                        >
-                            Login
-                        </Button>
+                        <div className="flex gap-4">
+                            <button
+                        onClick={() => router.push("/auth/login")}
+                        className="relative border rounded-full px-6 py-1 text-black border-gray-200 cursor-pointer overflow-hidden group bg-white/20 backdrop-blur-sm transition-all duration-300 hover:bg-white/40 hover:shadow-lg hover:scale-105 hover:text-gray-900"
+                      >
+                        <span className="relative z-10">Login</span>
+                        <span className="absolute inset-0 bg-gradient-to-r from-pink-200 to-cyan-200 opacity-0 group-hover:opacity-40 transition-opacity duration-300"></span>
+                      </button>
+                            <button
+                        onClick={() => router.push("/auth/register")}
+                        className="relative border rounded-full px-6 py-1 text-black border-gray-200 cursor-pointer overflow-hidden group bg-white/20 backdrop-blur-sm transition-all duration-300 hover:bg-white/40 hover:shadow-lg hover:scale-105 hover:text-gray-900"
+                      >
+                        <span className="relative z-10">Register</span>
+                        <span className="absolute inset-0 bg-gradient-to-r from-pink-200 to-cyan-200 opacity-0 group-hover:opacity-40 transition-opacity duration-300"></span>
+                      </button>
+                        </div>
                     ) : (
                         <div className="relative group">
                             <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full opacity-0 group-hover:opacity-100 transition duration-300 blur"></div>

@@ -68,7 +68,7 @@ const LandingHero = () => {
           }`}
         >
           <button
-            onClick={() => router.push("/onboarding")}
+            onClick={() => router.push("/dashboard")}
             className="relative border rounded-full px-6 py-3 text-black border-white cursor-pointer overflow-hidden group bg-white/20 backdrop-blur-sm transition-all duration-300 hover:bg-white/40 hover:shadow-lg hover:scale-105 hover:text-gray-900"
           >
             <span className="relative z-10">Let's Get Started</span>
