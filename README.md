@@ -1,7 +1,7 @@
-# AI-Powered Health & Wellness App
+# Vein - AI-Powered Health & Wellness App
 
 ## 🚀 Overview
-This is an AI-driven Health & Wellness app designed to provide a seamless and personalized experience. Unlike traditional fitness apps, this app eliminates the need for manual input of calories and exercises. It integrates AI to offer personalized health recommendations, real-time guidance, and intuitive dashboards, helping users follow the principle **"Prevention is better than cure."**
+Vein AI is an AI-driven Health & Wellness app designed to provide a seamless and personalized experience. Unlike traditional fitness apps, this app eliminates the need for manual input of calories and exercises. It integrates AI to offer personalized health recommendations, real-time guidance, and intuitive dashboards, helping users follow the principle **"Prevention is better than cure."**
 
 ## ✨ Features
 - **Minimalist UI** with an intuitive dashboard.
