@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import axios from "axios";
 import { signIn } from "next-auth/react";
 
+
 export default function Register() {
   const [name, setName] = useState("");
   const [username, setUsername] = useState("");
@@ -45,17 +46,19 @@ export default function Register() {
           toast.success("Signed in successfully!", {
             position: "top-right",
           });
-          router.push("/");
+          router.push("/dashboard");
         }
       } else {
         toast.error("Something went wrong. Please try again...!", {
           position: "top-right",
         });
+        
       }
     } catch (error) {
       toast.error("Something went wrong. Please try again...!", {
         position: "top-right",
       });
+      console.log(error)
     } finally {
       setLoading(false);
     }

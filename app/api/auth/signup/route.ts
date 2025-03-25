@@ -2,7 +2,7 @@ import prisma from "@/app/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 
-export default async function POST(req: NextRequest) {
+export  async function POST(req: NextRequest) {
   try {
     const { name, email, password, username } = await req.json();
 
@@ -19,7 +19,7 @@ export default async function POST(req: NextRequest) {
       where: { email },
     });
 
-    if (!existingUser) {
+    if (existingUser) {
       return NextResponse.json(
         {
           message: "user with this email already exists",
