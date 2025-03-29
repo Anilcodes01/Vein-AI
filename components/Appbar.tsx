@@ -65,10 +65,10 @@ export default function Appbar() {
                         </div>
                     ) : (
                         <div className="relative group">
-                            <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full opacity-0 group-hover:opacity-100 transition duration-300 blur"></div>
+                            <div className="absolute -inset-0.5 bg-gradient-to-br from-[#FFDEE9] to-[#B5FFFC] rounded-full opacity-0 group-hover:opacity-100 transition duration-300 blur"></div>
                             <Avatar className="relative border-2 border-transparent group-hover:border-white transition-all duration-300">
                                 <AvatarImage src={session.user?.image || ""} className="transition-transform duration-300 group-hover:scale-105" />
-                                <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-500">
+                                <AvatarFallback className="bg-gradient-to-br from-[#FFDEE9] to-[#B5FFFC]">
                                     {session.user?.name?.charAt(0).toUpperCase()}
                                 </AvatarFallback>
                             </Avatar>
