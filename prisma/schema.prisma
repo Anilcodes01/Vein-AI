@@ -1,63 +1,174 @@
-generator client {
-  provider = "prisma-client-js"
+generator client {   
+  provider = "prisma-client-js" 
+}  
+
+datasource db {   
+  provider = "sqlite"   
+  url      = "file:./dev.db" 
+}  
+
+model User {   
+  id            String          @id @default(cuid())   
+  name          String?   
+  email         String          @unique   
+  username      String?         @unique   
+  password      String?   
+  emailVerified DateTime?   
+  image         String?   
+  accounts      Account[]   
+  sessions      Session[]   
+  userDetails   UserDetails?      
+
+  createdAt     DateTime @default(now())   
+  updatedAt     DateTime @updatedAt 
+
+  mainGoals          MainGoalOnUser[]
+  preferredWorkouts  PreferredWorkoutOnUser[]
+  dietryApproaches   DietryApproachOnUser[]
+  biggestChallenges  BiggestChallengeOnUser[]
+}  
+
+model UserDetails {   
+  id               String @id @default(uuid())   
+  userId           String   @unique
+  user             User @relation(fields: [userId], references: [id])   
+  age             Int   
+  identity        Identity   
+  height          Int   
+  weight          Int   
+  activity_level  ActivityLevel   
+  averageSleep    AverageSleep   
+  fitnessSuperpower FitnessSuperpower 
+}  
+
+model MainGoal {   
+  id    String @id @default(uuid())   
+  goal  String   
+  users MainGoalOnUser[] 
+}  
+
+model MainGoalOnUser {
+  userId   String
+  goalId   String
+
+  user     User      @relation(fields: [userId], references: [id])
+  goal     MainGoal  @relation(fields: [goalId], references: [id])
+
+  @@id([userId, goalId]) 
 }
 
-datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
+model PreferredWorkout {   
+  id       String @id @default(uuid())   
+  workout  String   
+  users    PreferredWorkoutOnUser[] 
+}  
+
+model PreferredWorkoutOnUser {
+  userId      String
+  workoutId   String
+
+  user        User            @relation(fields: [userId], references: [id])
+  workout     PreferredWorkout @relation(fields: [workoutId], references: [id])
+
+  @@id([userId, workoutId]) 
 }
 
-model User {
-  id            String          @id @default(cuid())
-  name          String?
-  email         String          @unique
-  username     String?         @unique
-  password      String?
-  emailVerified DateTime?
-  image         String?
-  accounts      Account[]
-  sessions      Session[]
-  
- 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model DietryApproach {   
+  id     String @id @default(uuid())   
+  name   String   
+  users  DietryApproachOnUser[] 
+}  
+
+model DietryApproachOnUser {
+  userId    String
+  dietId    String
+
+  user      User            @relation(fields: [userId], references: [id])
+  diet      DietryApproach  @relation(fields: [dietId], references: [id])
+
+  @@id([userId, dietId])
 }
- 
-model Account {
-  userId            String
-  type              String
-  provider          String
-  providerAccountId String
-  refresh_token     String?
-  access_token      String?
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String?
-  session_state     String?
- 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
- 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
- 
-  @@id([provider, providerAccountId])
+
+model BiggestChallenge {   
+  id       String @id @default(uuid())   
+  challenge String   
+  users     BiggestChallengeOnUser[] 
+}  
+
+model BiggestChallengeOnUser {
+  userId        String
+  challengeId   String
+
+  user          User                @relation(fields: [userId], references: [id])
+  challenge     BiggestChallenge    @relation(fields: [challengeId], references: [id])
+
+  @@id([userId, challengeId]) 
 }
- 
-model Session {
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
- 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
- 
-model VerificationToken {
-  identifier String
-  token      String
-  expires    DateTime
- 
-  @@id([identifier, token])
-}
+
+
+enum FitnessSuperpower {     
+  NEVER_FEEL_TIRED         
+  INSTANT_MUSCLE_GAIN      
+  EFFORTLESS_HEALTHY_EATING    
+  UNSHAKEABLE_MOTIVATION  
+}  
+
+enum AverageSleep {   
+  LESS_THAN_4   
+  BETWEEN_4_TO_6   
+  SOLID_6_TO_8   
+  MORE_THAN_8 
+}  
+
+enum ActivityLevel {   
+  RELAXED_HOMEBODY   
+  CASUAL_MOVER   
+  PRETTY_ACTIVE   
+  FITNESS_BEAST 
+}  
+
+enum Identity {   
+  MALE   
+  FEMALE   
+  OTHER 
+}  
+
+
+model Account {   
+  userId            String   
+  type              String   
+  provider          String   
+  providerAccountId String   
+  refresh_token     String?   
+  access_token      String?   
+  expires_at        Int?   
+  token_type        String?   
+  scope             String?   
+  id_token          String?   
+  session_state     String?     
+
+  createdAt         DateTime @default(now())   
+  updatedAt         DateTime @updatedAt     
+
+  user             User @relation(fields: [userId], references: [id], onDelete: Cascade)     
+
+  @@id([provider, providerAccountId]) 
+}   
+
+model Session {   
+  sessionToken  String @unique   
+  userId        String   
+  expires       DateTime   
+  user          User @relation(fields: [userId], references: [id], onDelete: Cascade)     
+
+  createdAt     DateTime @default(now())   
+  updatedAt     DateTime @updatedAt 
+}   
+
+model VerificationToken {   
+  identifier  String   
+  token       String   
+  expires     DateTime     
+
+  @@id([identifier, token]) 
+}  

@@ -243,13 +243,13 @@ export default function Chat() {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-gradient-to-br from-blue-50 to-green-50 p-4 md:p-6">
+    <div className="flex flex-col h-screen bg-gradient-to-br items-center justify-center from-blue-50 to-green-50 p-4 md:p-6">
       <header className="text-center mb-6">
-        <h1 className="text-3xl font-bold text-blue-800 mb-2">HealthFit Coach</h1>
+        <h1 className="text-3xl font-bold text-blue-800 mb-2">Vein Coach</h1>
         <p className="text-blue-600">Your personalized AI health assistant</p>
       </header>
 
-      <div className="flex-1 overflow-y-auto rounded-xl bg-white shadow-lg p-4 mb-4">
+      <div className="flex-1 overflow-y-auto rounded-xl w-1/2 bg-white shadow-lg p-4 mb-4">
         {chat.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center p-8">
             <div className="bg-blue-100 p-6 rounded-full mb-4">
@@ -331,7 +331,7 @@ export default function Chat() {
                     </div>
                   )}
                   <strong className="text-sm">
-                    {msg.role === "user" ? "You" : "Health Coach"}
+                    {msg.role === "user" ? "You" : "Vein"}
                   </strong>
                 </div>
                 {msg.content.split("\n").map((line, i) => (
@@ -363,7 +363,7 @@ export default function Chat() {
 
       <form
         onSubmit={handleSubmit}
-        className="bg-white rounded-xl shadow-lg p-4 flex items-center gap-3"
+        className="bg-white rounded-xl w-1/2 shadow-lg p-4 flex items-center gap-3"
       >
         <input
           type="text"
