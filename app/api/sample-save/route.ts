@@ -5,25 +5,14 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest, res: NextResponse) {
   try {
-    const session = await getServerSession(authOptions);
-
-    const userId = session?.user.id;
-
-    if (!userId) {
-      return NextResponse.json(
-        {
-          message: "No userId provided",
-        },
-        { status: 401 }
-      );
-    }
+   
 
     const { userData } = await req.json();
 
     const saveUser = await prisma.userDetails.create({
       data: {
-        userId: userId!,
-        age: userData.Age,
+        userId: userData.userId,
+        age: userData.age,
         identity: userData.identity,
         height: userData.height,
         weight: userData.weight,

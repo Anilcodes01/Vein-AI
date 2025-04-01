@@ -68,9 +68,9 @@ enum ActivityLevel {
 }  
 
 enum Identity {   
-  MALE   
-  FEMALE   
-  OTHER 
+  Male   
+  Female   
+  Other
 }  
 
 
