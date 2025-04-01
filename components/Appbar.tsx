@@ -1,7 +1,6 @@
 'use client'
 import Image from "next/image";
-import { Button } from "./ui/button";
-import { signIn, useSession } from "next-auth/react";
+import {  useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Loader } from "lucide-react";
@@ -30,15 +29,15 @@ export default function Appbar() {
             <div onClick={() => router.push('/')} className="flex items-center gap-2 justify-center h-16 group cursor-pointer transition-transform duration-300 hover:scale-105">
                 <div className="relative overflow-hidden">
                     <Image 
-                        src="/logo-veinai.png" 
+                        src="/logo1.png" 
                         alt="logo" 
                         width={200} 
                         height={200} 
-                        className="h-8 w-8 transition-transform duration-300 group-hover:rotate-6"
+                        className="h-16 w-16 transition-transform duration-300 "
                     />
                 </div>
-                <h1 className="text-2xl text-gray-800 font-bold relative">
-                    <span className="bg-clip-text text-transparent bg-gradient-to-r from-gray-800 to-gray-800 group-hover:from-purple-500 group-hover:to-pink-500 transition-all duration-300">Vein AI</span>
+                <h1 className="text-2xl text-green-600 font-bold relative">
+                    <span className="bg-clip-text text-green-700 bg-gradient-to-r from-gray-800 to-gray-800 group-hover:from-purple-500 group-hover:to-pink-500 transition-all duration-300">Vein </span>
                 </h1>
             </div>
             
