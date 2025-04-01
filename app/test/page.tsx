@@ -82,7 +82,7 @@ export default function Test() {
   };
 
   return (
-    <div className="flex items-center justify-center w-full min-h-screen bg-yellow-200 p-4">
+    <div className="flex items-center justify-center w-full min-h-screen  p-4">
       <div className="w-full max-w-2xl bg-white rounded-lg shadow-md p-6">
         <h1 className="text-2xl font-bold text-center mb-6">Fitness Profile Form</h1>
 

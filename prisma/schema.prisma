@@ -18,6 +18,7 @@ model User {
   accounts      Account[]   
   sessions      Session[]   
   userDetails   UserDetails[]
+  userDashData UserDashData[]
 
   createdAt     DateTime @default(now())   
   updatedAt     DateTime @updatedAt 
@@ -45,6 +46,16 @@ model UserDetails {
   updatedAt        DateTime @updatedAt
 }
 
+model UserDashData {
+  id String @id @default(uuid())
+  userId String
+  user User @relation(fields: [userId], references: [id])
+  calorieIntake Int
+  proteinIntake Int
+  fatIntake Int
+  carbohydrateIntake Int
+  waterIntake Int
+}
 
 enum FitnessSuperpower {     
   NEVER_FEEL_TIRED         
