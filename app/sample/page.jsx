@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
+import axios from "axios";
 
 export default function Chat() {
   const [input, setInput] = useState("");
@@ -9,18 +10,11 @@ export default function Chat() {
   const [loading, setLoading] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isListening, setIsListening] = useState(false);
-  const [voiceSettings, setVoiceSettings] = useState({
-    stability: 0.5,
-    similarity_boost: 0.75,
-  });
   const recognitionRef = useRef(null);
+  const speechSynthesisRef = useRef(null);
   const silenceTimerRef = useRef(null);
   const chatEndRef = useRef(null);
-
-  // ElevenLabs Configuration
-  const ELEVENLABS_API_KEY = process.env.NEXT_PUBLIC_ELEVENLABS_API_KEY;
-  const ELEVENLABS_VOICE_ID = "21m00Tcm4TlvDq8ikWAM"; // Rachel - friendly female voice
-  const ELEVENLABS_API_URL = `https://api.elevenlabs.io/v1/text-to-speech/${ELEVENLABS_VOICE_ID}`;
+  const [userData, setUserData] = useState([]);
 
   // Scroll to bottom of chat
   useEffect(() => {
@@ -29,12 +23,13 @@ export default function Chat() {
 
   // Speech recognition setup
   useEffect(() => {
-    if (typeof window !== "undefined" && 'webkitSpeechRecognition' in window) {
-      const SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition;
+    if (typeof window !== "undefined" && "webkitSpeechRecognition" in window) {
+      const SpeechRecognition =
+        window.webkitSpeechRecognition || window.SpeechRecognition;
       recognitionRef.current = new SpeechRecognition();
       recognitionRef.current.continuous = false;
       recognitionRef.current.interimResults = true;
-      recognitionRef.current.lang = 'en-US';
+      recognitionRef.current.lang = "en-US";
 
       recognitionRef.current.onstart = () => {
         setIsListening(true);
@@ -51,12 +46,12 @@ export default function Chat() {
         if (isSpeaking) {
           if (isListening) stopListening();
           return;
-        };
+        }
 
         const transcript = Array.from(event.results)
-          .map(result => result[0])
-          .map(result => result.transcript)
-          .join('');
+          .map((result) => result[0])
+          .map((result) => result.transcript)
+          .join("");
 
         setInput(transcript);
 
@@ -76,8 +71,8 @@ export default function Chat() {
       };
 
       recognitionRef.current.onerror = (event) => {
-        if (event.error !== 'no-speech' && event.error !== 'aborted') {
-          console.error('Speech recognition error:', event.error);
+        if (event.error !== "no-speech" && event.error !== "aborted") {
+          console.error("Speech recognition error:", event.error);
         }
         setIsListening(false);
         if (silenceTimerRef.current) {
@@ -86,6 +81,9 @@ export default function Chat() {
       };
     }
 
+    // Initialize speech synthesis
+    speechSynthesisRef.current = window.speechSynthesis;
+
     return () => {
       if (recognitionRef.current) {
         recognitionRef.current.stop();
@@ -93,60 +91,63 @@ export default function Chat() {
       if (silenceTimerRef.current) {
         clearTimeout(silenceTimerRef.current);
       }
+      if (speechSynthesisRef.current?.speaking) {
+        speechSynthesisRef.current.cancel();
+      }
     };
   }, []);
 
-  // ElevenLabs TTS function
-  async function speakWithElevenLabs(text) {
+  // Web Speech API TTS function
+  function speakWithWebSpeech(text) {
     if (!text.trim()) return;
 
     // Stop any ongoing speech or listening
-    if (window.speechSynthesis?.speaking) {
-      window.speechSynthesis.cancel();
+    if (speechSynthesisRef.current?.speaking) {
+      speechSynthesisRef.current.cancel();
     }
     stopListening();
 
     setIsSpeaking(true);
 
     try {
-      const response = await fetch(ELEVENLABS_API_URL, {
-        method: "POST",
-        headers: {
-          "xi-api-key": ELEVENLABS_API_KEY,
-          "Content-Type": "application/json",
-          "accept": "audio/mpeg"
-        },
-        body: JSON.stringify({
-          text: text,
-          voice_settings: voiceSettings
-        })
-      });
+      const utterance = new SpeechSynthesisUtterance(text);
 
-      if (!response.ok) {
-        throw new Error(`ElevenLabs API error: ${response.status}`);
+      // Configure voice settings
+      utterance.rate = 1.0;
+      utterance.pitch = 1.0;
+      utterance.volume = 1.0;
+
+      // Try to find a pleasant voice
+      const voices = speechSynthesisRef.current.getVoices();
+      const preferredVoice = voices.find(
+        (voice) =>
+          voice.name.includes("Female") ||
+          voice.name.includes("female") ||
+          voice.lang.includes("en-US")
+      );
+
+      if (preferredVoice) {
+        utterance.voice = preferredVoice;
       }
 
-      const audioBlob = await response.blob();
-      const audioUrl = URL.createObjectURL(audioBlob);
-      const audio = new Audio(audioUrl);
-
-      audio.onended = () => {
+      utterance.onend = () => {
         setIsSpeaking(false);
         setTimeout(() => {
           if (!isListening) startListening();
         }, 500);
       };
 
-      audio.onerror = () => {
+      utterance.onerror = (event) => {
+        console.error("Speech synthesis error:", event);
         setIsSpeaking(false);
         setTimeout(() => {
           if (!isListening) startListening();
         }, 300);
       };
 
-      audio.play();
+      speechSynthesisRef.current.speak(utterance);
     } catch (error) {
-      console.error("Error with ElevenLabs TTS:", error);
+      console.error("Error with Web Speech TTS:", error);
       setIsSpeaking(false);
       setTimeout(() => {
         if (!isListening) startListening();
@@ -159,7 +160,7 @@ export default function Chat() {
       try {
         recognitionRef.current.start();
       } catch (error) {
-        console.error('Error starting recognition:', error);
+        console.error("Error starting recognition:", error);
         setIsListening(false);
       }
     }
@@ -179,7 +180,7 @@ export default function Chat() {
     const trimmedMessage = message.trim();
     if (!trimmedMessage) return;
 
-    setChat(prev => [...prev, { role: "user", content: trimmedMessage }]);
+    setChat((prev) => [...prev, { role: "user", content: trimmedMessage }]);
     setInput("");
     setLoading(true);
 
@@ -193,24 +194,26 @@ export default function Chat() {
       if (!res.ok) throw new Error(`API Error: ${res.status}`);
 
       const data = await res.json();
-      const assistantResponse = data.response || "Sorry, I couldn't generate a response.";
+      console.log(data.userData);
+      setUserData(data.userData);
+      const assistantResponse =
+        data.response || "Sorry, I couldn't generate a response.";
 
-      setChat(prev => [
+      setChat((prev) => [
         ...prev,
         { role: "assistant", content: assistantResponse },
       ]);
 
-      // Use ElevenLabs for TTS
-      speakWithElevenLabs(assistantResponse);
-
+      // Use Web Speech API for TTS
+      speakWithWebSpeech(assistantResponse);
     } catch (error) {
       console.error("Error:", error);
       const errorMessage = "Oops, something went wrong. Let's try that again!";
-      setChat(prev => [
+      setChat((prev) => [
         ...prev,
         { role: "assistant", content: errorMessage },
       ]);
-      speakWithElevenLabs(errorMessage);
+      speakWithWebSpeech(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -228,8 +231,7 @@ export default function Chat() {
     } else {
       if (isSpeaking) {
         // Stop any ongoing speech
-        const audioElements = document.querySelectorAll('audio');
-        audioElements.forEach(audio => audio.pause());
+        speechSynthesisRef.current.cancel();
         setIsSpeaking(false);
       }
       startListening();
@@ -240,6 +242,18 @@ export default function Chat() {
   const messageVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0 },
+  };
+
+  const handleUserData = async () => {
+    try {
+      const res = await axios.post("/api/sample-save", { userData });
+
+      if (res.status === 200) {
+        console.log("user data saved successfully to the database...!");
+      }
+    } catch (error) {
+      console.log("Error while saving data to database...!");
+    }
   };
 
   return (
@@ -272,8 +286,8 @@ export default function Chat() {
               Welcome to HealthFit Coach!
             </h2>
             <p className="text-gray-500 max-w-md">
-              I'm here to help you with your fitness goals. Ask me anything about
-              nutrition, workouts, or general health advice.
+              I'm here to help you with your fitness goals. Ask me anything
+              about nutrition, workouts, or general health advice.
             </p>
             <button
               onClick={() => startListening()}
@@ -304,7 +318,9 @@ export default function Chat() {
               animate="visible"
               variants={messageVariants}
               transition={{ duration: 0.3 }}
-              className={`mb-4 flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+              className={`mb-4 flex ${
+                msg.role === "user" ? "justify-end" : "justify-start"
+              }`}
             >
               <div
                 className={`max-w-[85%] rounded-2xl px-4 py-3 ${
@@ -331,7 +347,7 @@ export default function Chat() {
                     </div>
                   )}
                   <strong className="text-sm">
-                    {msg.role === "user" ? "You" : "Vein"}
+                    {msg.role === "user" ? "You" : ""}
                   </strong>
                 </div>
                 {msg.content.split("\n").map((line, i) => (
@@ -352,8 +368,14 @@ export default function Chat() {
             <div className="bg-gray-100 text-gray-800 rounded-2xl rounded-bl-none px-4 py-3 max-w-[85%]">
               <div className="flex space-x-2">
                 <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "0.2s" }}></div>
-                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "0.4s" }}></div>
+                <div
+                  className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                  style={{ animationDelay: "0.2s" }}
+                ></div>
+                <div
+                  className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                  style={{ animationDelay: "0.4s" }}
+                ></div>
               </div>
             </div>
           </motion.div>
@@ -387,7 +409,7 @@ export default function Chat() {
             isListening
               ? "bg-red-500 text-white hover:bg-red-600 animate-pulse"
               : "bg-blue-100 text-blue-600 hover:bg-blue-200"
-          } ${(loading || isSpeaking) ? "opacity-50 cursor-not-allowed" : ""}`}
+          } ${loading || isSpeaking ? "opacity-50 cursor-not-allowed" : ""}`}
           aria-label={isListening ? "Stop listening" : "Start listening"}
         >
           <svg
@@ -425,6 +447,13 @@ export default function Chat() {
             />
           </svg>
           Send
+        </button>
+        <button
+          onClick={handleUserData}
+          disabled={loading || isSpeaking || isListening}
+          className="px-5 py-3 bg-green-600 text-white rounded-full font-medium hover:enabled:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+        >
+          Submit
         </button>
       </form>
     </div>
