@@ -1,6 +1,7 @@
 "use client";
 import axios from "axios";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function DashboardComp() {
@@ -10,6 +11,7 @@ export default function DashboardComp() {
   const [waterIntake, setWaterIntake] = useState("");
   const [fatIntake, setFatIntake] = useState("");
   const [carbsIntake, setCarbsIntake] = useState("");
+  const router = useRouter();
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -143,7 +145,7 @@ export default function DashboardComp() {
       </div>
       
       <div className="text-center mt-6">
-        <button className="px-6 py-2 bg-gradient-to-r from-purple-500 to-blue-500 text-white font-medium rounded-full hover:shadow-lg transition-shadow duration-300">
+        <button onClick={() => router.push('/reports')} className="px-6 cursor-pointer py-2 bg-gradient-to-r from-purple-500 to-blue-500 text-white font-medium rounded-full hover:shadow-lg transition-shadow duration-300">
           View Detailed Report
         </button>
       </div>
