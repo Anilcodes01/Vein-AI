@@ -1,5 +1,5 @@
-import HistoryComp from "@/components/HistoryComp";
-import Sidebar from "@/components/Sidebar";
+import HistoryComp from "@/components/History/HistoryComp";
+import Sidebar from "@/components/Landing/Sidebar";
 
 
 export default function HistoryPage() {

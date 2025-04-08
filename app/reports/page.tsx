@@ -1,5 +1,5 @@
-import ReportComp from "@/components/ReportComp";
-import Sidebar from "@/components/Sidebar";
+import ReportComp from "@/components/Report/ReportComp";
+import Sidebar from "@/components/Landing/Sidebar";
 
 
 export default function ReportPage() {

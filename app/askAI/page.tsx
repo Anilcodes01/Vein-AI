@@ -1,5 +1,5 @@
-import AskAIComp from "@/components/AskAIComp";
-import Sidebar from "@/components/Sidebar";
+import AskAIComp from "@/components/AskAI/AskAIComp";
+import Sidebar from "@/components/Landing/Sidebar";
 
 
 export default function AskAi() {

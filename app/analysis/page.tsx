@@ -1,5 +1,5 @@
-import AnalysisComp from "@/components/Analysis";
-import Sidebar from "@/components/Sidebar";
+import AnalysisComp from "@/components/Analysis/Analysis";
+import Sidebar from "@/components/Landing/Sidebar";
 
 
 export default function AnalysisPage() {

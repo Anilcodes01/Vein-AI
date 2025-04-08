@@ -2,7 +2,7 @@
 import Image from "next/image";
 import {  useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Loader } from "lucide-react";
 import { useRouter } from "next/navigation";
 

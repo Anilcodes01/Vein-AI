@@ -1,6 +1,6 @@
 "use client";
 
-import SocialLogin from "@/components/SocialLogin";
+import SocialLogin from "@/components/auth/SocialLogin";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Toaster } from "@/components/ui/sonner";

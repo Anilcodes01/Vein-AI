@@ -3,8 +3,9 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Provider from "./providers";
-import Appbar from "../components/Appbar";
+import Appbar from "../components/Landing/Appbar";
 import { usePathname } from "next/navigation";
+import { DashboardProvider } from "@/contexts/DashboardContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,7 +37,9 @@ export default function RootLayout({
       >
         <Provider>
         {showAppbar && <Appbar />}
+        <DashboardProvider>
           {children}
+        </DashboardProvider>
         </Provider>
       </body>
     </html>

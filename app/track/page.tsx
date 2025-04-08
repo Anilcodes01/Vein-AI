@@ -1,5 +1,5 @@
-import Sidebar from "@/components/Sidebar";
-import TrackComp from "@/components/TrackComp";
+import Sidebar from "@/components/Landing/Sidebar";
+import TrackComp from "@/components/Track/TrackComp";
 
 
 export default function TrackPage() {

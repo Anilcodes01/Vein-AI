@@ -22,6 +22,6 @@
       "@/*": ["./*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "app/api/chat/route.js", "app/api/sample/route.js", "app/sample/page.jsx"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "app/api/chat/route.js", "app/api/sample/route.js", "app/sample/page.jsx", "app/api/askAI/route.js"],
   "exclude": ["node_modules"]
 }

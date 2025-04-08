@@ -1,4 +1,4 @@
-import VoiceAnalyser from "@/components/VoiceAnalyser";
+import VoiceAnalyser from "@/components/Landing/VoiceAnalyser";
 
 export default function Onboarding() {
 

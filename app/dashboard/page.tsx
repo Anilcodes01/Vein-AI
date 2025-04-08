@@ -1,5 +1,5 @@
-import Sidebar from "@/components/Sidebar";
-import DashboardComp from "@/components/DashboardComp";
+import Sidebar from "@/components/Landing/Sidebar";
+import DashboardComp from "@/components/Dashboard/DashboardComp";
 
 export default function Dashboard() {
   return (
