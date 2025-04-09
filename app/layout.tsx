@@ -28,15 +28,17 @@ export default function RootLayout({
   const showAppbar = pathname !== "/auth/login" && pathname !== "/auth/register";
 
   return (
-    <html lang="en">
+    <html lang="en" className="overflow-y-auto hide-scrollbar">
       <head>
         <link rel="icon" href="/logo-veinai.png" type="image/png" />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} overflow-y-auto hide-scrollbar antialiased`}
       >
         <Provider>
+        <div className="fixed top-0 w-full ">
         {showAppbar && <Appbar />}
+        </div>
         <DashboardProvider>
           {children}
         </DashboardProvider>

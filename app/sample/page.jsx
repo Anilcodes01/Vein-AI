@@ -16,7 +16,6 @@ export default function Chat() {
   const chatEndRef = useRef(null);
   const [userData, setUserData] = useState([]);
 
-  // Scroll to bottom of chat
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [chat]);

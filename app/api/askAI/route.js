@@ -1,162 +1,139 @@
-import { NextResponse } from "next/server";
-import { GoogleGenAI } from "@google/genai";
-import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/lib/authOptions";
 import prisma from "@/app/lib/prisma";
+import { GoogleGenAI } from "@google/genai";
+import { getServerSession } from "next-auth";
+import { NextResponse } from "next/server";
 
-let chat; 
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
-const geminiApiKey = process.env.GEMINI_API_KEY;
-if (!geminiApiKey) {
-    throw new Error("Missing GEMINI_API_KEY environment variable");
-}
-const ai = new GoogleGenAI({ apiKey: geminiApiKey });
+let chat = null;
 
-async function initChat() {
+function initChat() {
   if (!chat) {
-    console.log("Initializing new Gemini chat session...");
-    try {
-     
-      chat =  ai.chats.create({
-        model: "gemini-2.0-flash",
-        history: [
-          {
-            role: "user",
-            parts: [{ text: "You're a helpful and friendly health assistant..." }],
-          },
-          {
-            role: "model",
-            parts: [{ text: "I am a helpful and very friendly assistant..." }],
-          },
-        ],
-        generationConfig: {
-          maxOutputTokens: 200,
-          temperature: 0.6,
-          topP: 1,
-        }
-      });
-    } catch (error) {
-      console.error("Failed to initialize Gemini chat:", error);
-      throw new Error("Could not initialize AI chat session.");
-    }
+    chat = ai.chats.create({
+      model: "gemini-2.0-flash",
+      history: [
+        {
+          role: "user",
+          parts: [
+            {
+              text: "You're Vein, a personal and very friendly health assistant and answers user's query based on their data. Make it conversational, highly personal and don't repeat things and keep responses short and good looking, try your best to not answer in points",
+            },
+          ],
+        },
+        {
+          role: "model",
+          parts: [
+            {
+              text: "I am Vein, a personal and very friendly health assistant who answers user's query based on their data. I will keep it conversational, highly personal, and I will not repeat things and I will keep responses short and good looking, I will try my best to not answer in points. ",
+            },
+          ],
+        },
+      ],
+      config: {
+        temperature: 0.4,
+      },
+    });
   }
 }
 
-
-async function generateGeminiResponse(userMessage, userDetails, userNutritionalData) {
+async function generateGeminiResponse({
+  message,
+  userDetails,
+  userNutritionalData,
+  name
+}) {
   try {
-    await initChat();
-
-    if (!chat) {
-      console.error("Chat session is not available.");
-      throw new Error("AI chat session failed to initialize.");
-    }
-
-    const prompt = `
-    User details: ${JSON.stringify(userDetails)}
-    Nutritional data: ${JSON.stringify(userNutritionalData)}
-    User question: ${userMessage}
+    initChat();
+    const context = `
+      User details:
+      - Name: ${name}
+      - Age: ${userDetails?.age || "not provided"}
+      - Activity level: ${userDetails?.activityLevel || "not provided"}
+      - Height: ${userDetails?.height || "not provided"}
+      - Weight: ${userDetails?.weight || "not provided"}
+      - Dietary approach: ${userDetails?.dietaryApproaches || "not provided"}
+      - Identity: ${userDetails?.identity || "not provided"}
+      
+      Nutritional data:
+      - Calories: ${userNutritionalData?.calorieIntake || "not provided"}
+      - Carbs: ${userNutritionalData?.carbohydrateIntake || "not provided"}
+      - Fats: ${userNutritionalData?.fatIntake || "not provided"}
+      - Protein: ${userNutritionalData?.proteinIntake || "not provided"}
+      - Water: ${userNutritionalData?.waterIntake || "not provided"}
     `;
 
-    console.log("Sending prompt to Gemini...");
-    const result = await chat.sendMessage({ message: prompt }); 
-    const response = result.response;
-    console.log(response)
-    const aiResponse = response.text.trim();
-    console.log(aiResponse)
+    const fullMessage = `${context}\n\nUser question: ${message}`;
 
-    if (!response ) {
-      console.error("Gemini response or text function is missing:", response);
-      throw new Error("Received an invalid response from the AI.");
-    }
+    const response = await chat.sendMessage({
+      message: fullMessage,
+    });
 
-    console.log("Gemini Response Text:", aiResponse);
-
-    return aiResponse;
+    return response.text.trim();
   } catch (error) {
-    console.error("Error generating response from Gemini:", error);
-    throw new Error(
-      `Failed to get response from AI. Reason: ${
-        error instanceof Error ? error.message : String(error)
-      }`
-    );
+    console.error("Gemini SDK error:", error);
+    throw new Error("Failed to generate response with Gemini SDK");
   }
 }
 
-
-export async function POST(req) {
+export async function POST(request) {
   try {
     const session = await getServerSession(authOptions);
-
-    if (!session?.user?.id) {
-      return NextResponse.json(
-        { message: "Unauthorized" },
-        { status: 401 }
-      );
+    if (!session) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
     const userId = session.user.id;
-    const body = await req.json();
-    const message = body.message;
+    const { message } = await request.json();
 
-    if (!message || typeof message !== 'string' || message.trim() === '') {
+    if (!message) {
       return NextResponse.json(
-        { message: "No valid message provided" },
+        { message: "No message provided" },
         { status: 400 }
       );
     }
 
-    const [getUserIntakeData, getUserDetails] = await Promise.all([
-      prisma.userDashData.findFirst({
-        where: { userId: userId },
-        select: {
-          calorieIntake: true,
-          proteinIntake: true,
-          fatIntake: true,
-          carbohydrateIntake: true,
-          waterIntake: true
-        },
-      }),
-      prisma.userDetails.findFirst({
-        where: { userId: userId },
-        select: {
-          age: true,
-          weight: true,
-          height: true,
-          identity: true,
-          activityLevel: true
-          
-        },
-      })
-    ]);
+    const name = session.user.name;
 
-    if (!getUserIntakeData || !getUserDetails) {
-      console.warn(`Data not found for user ${userId}`);
-    }
-
-    const aiResponseText = await generateGeminiResponse(
-      message,
-      getUserDetails,
-      getUserIntakeData
-    );
-
-    if (typeof aiResponseText !== 'string') {
-      console.error("generateGeminiResponse did not return a string unexpectedly.");
-      throw new Error("Internal error: Failed to get valid AI response text.");
-    }
-
-    return NextResponse.json({
-      data: aiResponseText,
+    // Fixed Prisma queries - using proper where clauses
+    const userDetails = await prisma.userDetails.findFirst({
+      where: { userId }, // Changed to object with userId field
+      select: {
+        age: true,
+        activityLevel: true,
+        height: true,
+        weight: true,
+        dietaryApproaches: true,
+        identity: true,
+      },
     });
 
-  } catch (error) {
-    console.error("Error in POST /api/askai:", error);
-    const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
-    return NextResponse.json(
-      {
-        message: "Error while processing your request",
-        error: errorMessage,
+    const userNutritionalData = await prisma.userDashData.findFirst({
+      where: { userId }, // Changed to object with userId field
+      select: {
+        calorieIntake: true,
+        carbohydrateIntake: true,
+        fatIntake: true,
+        proteinIntake: true,
+        waterIntake: true,
       },
+    });
+
+    const response = await generateGeminiResponse({
+      message,
+      userDetails,
+      userNutritionalData,
+      name
+    });
+
+    return NextResponse.json({
+      response,
+      userData: userDetails || null,
+    });
+  } catch (error) {
+    console.error("API error:", error);
+    return NextResponse.json(
+      { message: "Internal server error" },
       { status: 500 }
     );
   }
