@@ -15,3 +15,14 @@ export type DashboardContextType = {
     error: string | null;
     refreshData: () => Promise<void>
 }
+
+
+
+export interface ChatMessage {
+    role: string;
+    content: string;
+  }
+
+ export  interface ApiResponse {
+    response?: string;
+  }

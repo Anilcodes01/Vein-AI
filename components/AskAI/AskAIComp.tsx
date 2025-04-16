@@ -1,43 +1,39 @@
 "use client";
-
+import { UseSelector, useDispatch, useSelector } from "react-redux";
+import { RootState } from "@/store";
+import { addMessage, setLoading } from "@/store/chatSlice";
 import { useRef, useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import axios from "axios";
+import { ChatMessage, ApiResponse } from "@/lib/types";
 
 export default function AskAIComp() {
   const [input, setInput] = useState("");
-  const [chat, setChat] = useState<{ role: string; content: string }[]>([]);
-  const [loading, setLoading] = useState(false);
+  const chat = useSelector((state: RootState) => state.chat.chat);
+  const loading = useSelector((state: RootState) => state.chat.loading);
+  const dispatch = useDispatch();
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [chat, loading]); 
+  }, [chat, loading]);
 
   const messageVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0 },
   };
 
-  interface ChatMessage {
-    role: string;
-    content: string;
-  }
-
-  interface ApiResponse {
-    response?: string;
-  }
-
   async function sendMessage(message: string): Promise<void> {
     const trimmedMessage = message.trim();
     if (!trimmedMessage) return;
 
-    const newUserMessage: ChatMessage = { role: "user", content: trimmedMessage };
-    setChat((prev) => [...prev, newUserMessage]);
+    const newUserMessage: ChatMessage = {
+      role: "user",
+      content: trimmedMessage,
+    };
+    dispatch(addMessage(newUserMessage));
     setInput("");
-    setLoading(true);
-
-    const currentChatHistory = [...chat, newUserMessage];
+    dispatch(setLoading(true));
 
     try {
       const { data } = await axios.post<ApiResponse>("/api/askAI", {
@@ -47,20 +43,13 @@ export default function AskAIComp() {
       const assistantResponse =
         data.response || "Sorry, I couldn't generate a response.";
 
-      setChat((prev) => [
-        ...prev,
-        { role: "assistant", content: assistantResponse },
-      ]);
-
+      dispatch(addMessage({role: "assistant", content: assistantResponse}))
     } catch (error) {
-      console.error("Error sending message:", error); 
-      const errorMessage = "Oops, something went wrong. Please try again!";
-      setChat((prev) => [
-        ...prev,
-        { role: "assistant", content: errorMessage },
-      ]);
+      console.error("Error sending message:", error);
+      dispatch(addMessage({ role: "assistant", content: "Oops, something went wrong. Please try again!" }));
+     
     } finally {
-      setLoading(false);
+      dispatch(setLoading(false));
     }
   }
 
@@ -71,8 +60,7 @@ export default function AskAIComp() {
   }
 
   return (
-    <div className="flex flex-col h-full bg-gradient-to-br items-center from-[#FFDEE9] to-[#B5FFFC] overflow-hidden">
-
+    <div className="flex flex-col h-full bg-gradient-to-br items-center  from-[#FFDEE9] to-[#B5FFFC] overflow-hidden">
       <div className="flex-1 overflow-y-auto p-4 w-4xl mt-16 ml-44 md:p-6 hide-scrollbar">
         {chat.length === 0 && !loading && (
           <div className="flex flex-col items-center justify-center h-full text-center p-4">
@@ -115,16 +103,16 @@ export default function AskAIComp() {
               }`}
             >
               <div
-                className={` rounded-3xl px-4 py-2  ${ 
+                className={` rounded-3xl px-4 py-2  ${
                   msg.role === "user"
-                    ? "bg-gray-100 max-w-[70%] text-black " 
-                    : "text-black" 
+                    ? "bg-gray-100 max-w-[70%] text-black "
+                    : "text-black"
                 }`}
               >
                 {typeof msg.content === "string" ? (
                   msg.content.split("\n").map((line, i) => (
-                    <p key={i} className="mb-0 leading-relaxed"> 
-                      {line || "\u00A0"} 
+                    <p key={i} className="mb-0 leading-relaxed">
+                      {line || "\u00A0"}
                     </p>
                   ))
                 ) : (
@@ -139,7 +127,7 @@ export default function AskAIComp() {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="flex justify-start mt-4" 
+            className="flex justify-start mt-4"
           >
             <div className="bg-white text-gray-800 rounded-2xl rounded-bl-none px-4 py-3 max-w-[85%] shadow-sm">
               <div className="flex space-x-2">
@@ -163,7 +151,7 @@ export default function AskAIComp() {
       <div className="p-3 md:p-4  w-4xl ml-44 ">
         <form
           onSubmit={handleSubmit}
-          className="flex items-center gap-3 w-full max-w-4xl mx-auto" 
+          className="flex items-center gap-3 w-full max-w-4xl mx-auto"
         >
           <input
             type="text"
@@ -171,7 +159,7 @@ export default function AskAIComp() {
             onChange={(e) => setInput(e.target.value)}
             placeholder="Type your health question..."
             disabled={loading}
-            className="flex-1 px-5 py-3 h-12 bg-white rounded-full outline-none " 
+            className="flex-1 px-5 py-3 h-12 bg-white rounded-full outline-none "
           />
           <button
             type="submit"

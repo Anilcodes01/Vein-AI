@@ -1,10 +1,8 @@
-'use client'
-
+import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Provider from "./providers";
+import Providers from "./providers"; // ✅ Client component
 import Appbar from "../components/Landing/Appbar";
-import { usePathname } from "next/navigation";
 import { DashboardProvider } from "@/contexts/DashboardContext";
 
 const geistSans = Geist({
@@ -17,32 +15,35 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+export const metadata: Metadata = {
+  title: 'Vein - Your personal health assistant',
+  description: 'Your personal health assistant',
+  icons: {
+    icon: '/logot.png',
+  },
+};
 
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-
-  const pathname = usePathname();
-  const showAppbar = pathname !== "/auth/login" && pathname !== "/auth/register";
-
   return (
     <html lang="en" className="overflow-y-auto hide-scrollbar">
       <head>
-        <link rel="icon" href="/logo-veinai.png" type="image/png" />
+        <link rel="icon" href="/logot.png" type="image/png" />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} overflow-y-auto hide-scrollbar antialiased`}
       >
-        <Provider>
-        <div className="fixed top-0 w-full ">
-        {showAppbar && <Appbar />}
-        </div>
-        <DashboardProvider>
-          {children}
-        </DashboardProvider>
-        </Provider>
+        <Providers>
+          <div className="fixed top-0 w-full">
+            <Appbar />
+          </div>
+          <DashboardProvider>
+            {children}
+          </DashboardProvider>
+        </Providers>
       </body>
     </html>
   );
