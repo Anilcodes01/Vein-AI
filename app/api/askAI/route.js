@@ -45,6 +45,7 @@ async function generateGeminiResponse({
 }) {
   try {
     initChat();
+
     const context = `
       User details:
       - Name: ${name}
@@ -64,11 +65,7 @@ async function generateGeminiResponse({
     `;
 
     const fullMessage = `${context}\n\nUser question: ${message}`;
-
-    const response = await chat.sendMessage({
-      message: fullMessage,
-    });
-
+    const response = await chat.sendMessage({ message: fullMessage });
     return response.text.trim();
   } catch (error) {
     console.error("Gemini SDK error:", error);
@@ -83,21 +80,41 @@ export async function POST(request) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
+    const { conversationId, message } = await request.json();
     const userId = session.user.id;
-    const { message } = await request.json();
-
-    if (!message) {
-      return NextResponse.json(
-        { message: "No message provided" },
-        { status: 400 }
-      );
-    }
-
     const name = session.user.name;
 
-    // Fixed Prisma queries - using proper where clauses
+    if (!message) {
+      return NextResponse.json({ message: "No message provided" }, { status: 400 });
+    }
+
+    // Get or create the conversation
+    let conversation = await prisma.conversation.findFirst({
+      where: { id: conversationId },
+    });
+
+    if (!conversationId) {
+      conversation = await prisma.conversation.create({
+        data: {
+        
+          userId,
+          title: message.slice(0, 30), // Title from first message
+        },
+      });
+    }
+
+    // Save the user message
+    const userMessage = await prisma.message.create({
+      data: {
+        conversationId: conversation.id,
+        role: "user",
+        content: message,
+      },
+    });
+
+    // Fetch user context
     const userDetails = await prisma.userDetails.findFirst({
-      where: { userId }, // Changed to object with userId field
+      where: { userId },
       select: {
         age: true,
         activityLevel: true,
@@ -109,7 +126,7 @@ export async function POST(request) {
     });
 
     const userNutritionalData = await prisma.userDashData.findFirst({
-      where: { userId }, // Changed to object with userId field
+      where: { userId },
       select: {
         calorieIntake: true,
         carbohydrateIntake: true,
@@ -119,22 +136,31 @@ export async function POST(request) {
       },
     });
 
-    const response = await generateGeminiResponse({
+    // Generate response
+    const aiResponse = await generateGeminiResponse({
       message,
       userDetails,
       userNutritionalData,
-      name
+      name,
+    });
+
+    // Save the AI response
+    const assistantMessage = await prisma.message.create({
+      data: {
+        conversationId: conversation.id,
+        role: "ai",
+        content: aiResponse,
+      },
     });
 
     return NextResponse.json({
-      response,
+      response: aiResponse,
+      conversationId: conversation.id,
+      messages: [userMessage, assistantMessage],
       userData: userDetails || null,
     });
   } catch (error) {
     console.error("API error:", error);
-    return NextResponse.json(
-      { message: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ message: "Internal server error" }, { status: 500 });
   }
 }

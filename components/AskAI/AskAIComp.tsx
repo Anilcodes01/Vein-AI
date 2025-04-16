@@ -115,9 +115,9 @@ export default function AskAIComp() {
               }`}
             >
               <div
-                className={`max-w-[85%] rounded-3xl px-4 py-2  ${ 
+                className={` rounded-3xl px-4 py-2  ${ 
                   msg.role === "user"
-                    ? "bg-gray-100 text-black " 
+                    ? "bg-gray-100 max-w-[70%] text-black " 
                     : "text-black" 
                 }`}
               >
