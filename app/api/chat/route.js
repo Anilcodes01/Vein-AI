@@ -138,7 +138,7 @@ At the end of the conversation, I will return a well-structured JSON object with
 
 
 
-export async function POST(Request) {
+export async function POST(request) {
   try {
     const { message } = await request.json(); // Extract user message from request body
 
