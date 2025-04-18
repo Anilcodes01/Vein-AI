@@ -9,7 +9,6 @@ export default function DashboardComp() {
   const { data, loading, error, refreshData } = useDashboard();
   const router = useRouter();
 
- 
 
   if (loading) {
     return (

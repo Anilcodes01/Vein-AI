@@ -13,6 +13,10 @@ export default function AskAIComp() {
   const loading = useSelector((state: RootState) => state.chat.loading);
   const dispatch = useDispatch();
   const chatEndRef = useRef<HTMLDivElement>(null);
+  const [chatId, setChatId] = useState("")
+  const [conversationId, setConversationId] = useState("");
+
+
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -37,11 +41,15 @@ export default function AskAIComp() {
 
     try {
       const { data } = await axios.post<ApiResponse>("/api/askAI", {
-        message: trimmedMessage,
+        message: trimmedMessage, conversationId
       });
+      console.log(data.conversationId)
+      setConversationId(data.conversationId || "")
 
       const assistantResponse =
         data.response || "Sorry, I couldn't generate a response.";
+
+        console.log(assistantResponse)
 
       dispatch(addMessage({role: "assistant", content: assistantResponse}))
     } catch (error) {
@@ -105,7 +113,7 @@ export default function AskAIComp() {
               <div
                 className={` rounded-3xl px-4 py-2  ${
                   msg.role === "user"
-                    ? "bg-gray-100 max-w-[70%] text-black "
+                    ? "bg-white max-w-[70%] text-black "
                     : "text-black"
                 }`}
               >

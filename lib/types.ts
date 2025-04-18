@@ -25,4 +25,5 @@ export interface ChatMessage {
 
  export  interface ApiResponse {
     response?: string;
+    conversationId?: string;
   }

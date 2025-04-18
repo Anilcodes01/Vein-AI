@@ -57,11 +57,11 @@ async function generateGeminiResponse({
       - Identity: ${userDetails?.identity || "not provided"}
       
       Nutritional data:
-      - Calories: ${userNutritionalData?.calorieIntake || "not provided"}
-      - Carbs: ${userNutritionalData?.carbohydrateIntake || "not provided"}
-      - Fats: ${userNutritionalData?.fatIntake || "not provided"}
-      - Protein: ${userNutritionalData?.proteinIntake || "not provided"}
-      - Water: ${userNutritionalData?.waterIntake || "not provided"}
+      - CaloriesNeed: ${userNutritionalData?.calorieIntake || "not provided"}
+      - CarbsNeed: ${userNutritionalData?.carbohydrateIntake || "not provided"}
+      - FatsNeed: ${userNutritionalData?.fatIntake || "not provided"}
+      - ProteinNeed: ${userNutritionalData?.proteinIntake || "not provided"}
+      - WaterNeed: ${userNutritionalData?.waterIntake || "not provided"}
     `;
 
     const fullMessage = `${context}\n\nUser question: ${message}`;
