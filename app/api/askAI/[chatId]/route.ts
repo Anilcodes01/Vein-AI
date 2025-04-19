@@ -1,10 +1,9 @@
-// app/api/askAI/[chatId]/route.ts
-import { authOptions } from "@/app/lib/authOptions"; // Adjust path if needed
-import prisma from "@/app/lib/prisma";             // Adjust path if needed
+
+import { authOptions } from "@/app/lib/authOptions"; 
+import prisma from "@/app/lib/prisma";            
 import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 
-// Context parameter is no longer needed in the function signature
 export async function GET(
     req: NextRequest
 ) {
@@ -19,28 +18,22 @@ export async function GET(
         }
         const userId = session.user.id;
 
-        // --- Extract chatId directly from the request URL ---
         const url = new URL(req.url);
         const pathSegments = url.pathname.split('/');
-        // For a route like /api/askAI/[chatId], the ID is the last segment
         const chatId = pathSegments[pathSegments.length - 1];
-        // --- ---
 
-        // Basic validation of the extracted ID
-        if (!chatId || typeof chatId !== 'string' || chatId === '[chatId]') { // Check it's not the placeholder itself
+        if (!chatId || typeof chatId !== 'string' || chatId === '[chatId]') { 
             console.warn("Could not extract valid chatId from URL path:", url.pathname);
             return NextResponse.json(
                 { message: "Valid Chat ID is required in the URL path" },
                 { status: 400 }
             );
         }
-        // Optional: Add more robust validation if your chatId has a specific format (e.g., UUID)
 
-        // --- Proceed with fetching logic ---
         const chat = await prisma.conversation.findUnique({
             where: {
                 id: chatId,
-                userId: userId, // SECURITY CHECK: Ensure user owns this chat
+                userId: userId, 
             },
             select: {
                 id: true,
@@ -65,7 +58,6 @@ export async function GET(
             { status: 200 }
         );
     } catch (error: any) {
-        // Log the URL in case of error for easier debugging
         console.error(`Error fetching chat (URL: ${req?.url}):`, error);
         return NextResponse.json(
             {

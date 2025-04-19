@@ -1,155 +1,203 @@
-generator client {   
-  provider = "prisma-client-js" 
-}  
+generator client {
+  provider = "prisma-client-js"
+}
 
-datasource db {   
-  provider = "postgresql"   
- url      = env("DATABASE_URL")
-}  
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
 
-model User {   
-  id            String          @id @default(cuid())   
-  name          String?   
-  email         String          @unique   
-  username      String?         @unique   
-  password      String?   
-  emailVerified DateTime?   
-  image         String?   
-  accounts      Account[]   
-  sessions      Session[]   
-  userDetails   UserDetails[]
-  userDashData UserDashData[]
-  conversations Conversation[]
+model User {
+  id               String             @id @default(cuid())
+  name             String?
+  email            String             @unique
+  username         String?            @unique
+  password         String?
+  emailVerified    DateTime?
+  image            String?
+  accounts         Account[]
+  sessions         Session[]
+  userDetails      UserDetails[]
+  userDashData     UserDashData[]
+  conversations    Conversation[]
+  userNutritionLog UserNutritionLog[]
 
-  createdAt     DateTime @default(now())   
-  updatedAt     DateTime @updatedAt 
-
-}  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
 
 model UserDetails {
-  id               String    @id @default(uuid())
-  userId           String    @unique
-  user             User      @relation(fields: [userId], references: [id])
-  age              Int?
-  identity         Identity?
-  height           Int?
-  weight           Int?
-  activityLevel    ActivityLevel?
-  averageSleep     AverageSleep?
+  id                String             @id @default(uuid())
+  userId            String             @unique
+  user              User               @relation(fields: [userId], references: [id])
+  age               Int?
+  identity          Identity?
+  height            Int?
+  weight            Int?
+  activityLevel     ActivityLevel?
+  averageSleep      AverageSleep?
   fitnessSuperpower FitnessSuperpower?
-  mainGoals        String[] 
-  preferredWorkouts String[] 
-  dietaryApproaches String[] 
-  biggestChallenges String[] 
-  rawData          Json?    
-  
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  mainGoals         String[]
+  preferredWorkouts String[]
+  dietaryApproaches String[]
+  biggestChallenges String[]
+  rawData           Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model UserDashData {
-  id String @id @default(uuid())
-  userId String
-  user User @relation(fields: [userId], references: [id])
-  calorieIntake Int
-  proteinIntake Int
-  fatIntake Int
+  id                 String @id @default(uuid())
+  userId             String
+  user               User   @relation(fields: [userId], references: [id])
+  calorieIntake      Int
+  proteinIntake      Int
+  fatIntake          Int
   carbohydrateIntake Int
-  waterIntake Int
+  waterIntake        Int
 }
 
-enum FitnessSuperpower {     
-  NEVER_FEEL_TIRED         
-  INSTANT_MUSCLE_GAIN      
-  EFFORTLESS_HEALTHY_EATING    
-  UNSHAKEABLE_MOTIVATION  
-}  
+enum FitnessSuperpower {
+  NEVER_FEEL_TIRED
+  INSTANT_MUSCLE_GAIN
+  EFFORTLESS_HEALTHY_EATING
+  UNSHAKEABLE_MOTIVATION
+}
 
-enum AverageSleep {   
-  LESS_THAN_4   
-  BETWEEN_4_TO_6   
-  SOLID_6_TO_8   
-  MORE_THAN_8 
-}  
+enum AverageSleep {
+  LESS_THAN_4
+  BETWEEN_4_TO_6
+  SOLID_6_TO_8
+  MORE_THAN_8
+}
 
-enum ActivityLevel {   
-  RELAXED_HOMEBODY   
-  CASUAL_MOVER   
-  PRETTY_ACTIVE   
-  FITNESS_BEAST 
-}  
+enum ActivityLevel {
+  RELAXED_HOMEBODY
+  CASUAL_MOVER
+  PRETTY_ACTIVE
+  FITNESS_BEAST
+}
 
-enum Identity {   
-  Male   
-  Female   
+enum Identity {
+  Male
+  Female
   Other
-}  
+}
 
+model Account {
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
 
-model Account {   
-  userId            String   
-  type              String   
-  provider          String   
-  providerAccountId String   
-  refresh_token     String?   
-  access_token      String?   
-  expires_at        Int?   
-  token_type        String?   
-  scope             String?   
-  id_token          String?   
-  session_state     String?     
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  createdAt         DateTime @default(now())   
-  updatedAt         DateTime @updatedAt     
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  user             User @relation(fields: [userId], references: [id], onDelete: Cascade)     
+  @@id([provider, providerAccountId])
+}
 
-  @@id([provider, providerAccountId]) 
-}   
+model Session {
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-model Session {   
-  sessionToken  String @unique   
-  userId        String   
-  expires       DateTime   
-  user          User @relation(fields: [userId], references: [id], onDelete: Cascade)     
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
 
-  createdAt     DateTime @default(now())   
-  updatedAt     DateTime @updatedAt 
-}   
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
 
-model VerificationToken {   
-  identifier  String   
-  token       String   
-  expires     DateTime     
-
-  @@id([identifier, token]) 
-}  
-
+  @@id([identifier, token])
+}
 
 model Conversation {
-  id        String   @id @default(uuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id])
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
 
-  title     String  
-  messages  Message[] 
+  title    String
+  messages Message[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model Message {
-  id              String   @id @default(uuid())
-  conversationId  String
-  conversation    Conversation @relation(fields: [conversationId], references: [id])
+  id             String       @id @default(uuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
 
-  role            Role   
-  content         String
+  role    Role
+  content String
 
-  createdAt       DateTime @default(now())
+  createdAt DateTime @default(now())
 }
 
 enum Role {
   user
   ai
+}
+
+model UserNutritionLog {
+  id             String             @id @default(uuid())
+  userId         String
+  date           DateTime
+  entries        NutritionEntry[]
+  totalCalories  Int                @default(0)
+  totalProtein   Float              @default(0.0)
+  totalFat       Float              @default(0.0)
+  totalCarbs     Float              @default(0.0)
+  totalWaterMl   Int                @default(0)           
+  moodBefore     String?           
+  moodAfter      String?
+
+  user           User               @relation(fields: [userId], references: [id])
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+}
+
+enum MealTime {
+  breakfast
+  lunch
+  dinner
+  snack
+}
+
+model NutritionEntry {
+  id          String           @id @default(uuid())
+  log         UserNutritionLog @relation(fields: [logId], references: [id], onDelete: Cascade)
+  logId       String
+  time        DateTime
+  mealtime    MealTime
+  source      EntrySource      @default(chat)
+  description String
+  calories    Int
+  protein     Float
+  fat         Float
+  carbs       Float
+  waterMl     Int
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+}
+
+
+enum EntrySource {
+  manual
+  photo
+  chat
+  auto_suggest
 }

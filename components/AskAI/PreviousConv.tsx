@@ -6,6 +6,8 @@ import { ChatMessage } from "@/lib/types";
 import { useParams } from "next/navigation";
 import { BeatLoader } from "react-spinners";
 import { toast, Toaster } from "sonner";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 export default function PreviousConv() {
   const [input, setInput] = useState("");
@@ -130,40 +132,71 @@ export default function PreviousConv() {
           </div>
         )}
 
-        {(!loading || chat.length > 0) && (
-          <div className="space-y-8">
-            {chat.map((msg, index) => (
-              <motion.div
-                key={index}
-                initial="hidden"
-                animate="visible"
-                variants={messageVariants}
-                transition={{ duration: 0.3 }}
-                className={`flex w-full ${
-                  msg.role === "user" ? "justify-end" : "justify-start"
-                }`}
-              >
-                <div
-                   className={`rounded-3xl px-4 py-2  break-words  ${
-                    msg.role === "user"
-                      ? "bg-white max-w-[70%] text-black " 
-                      : "text-black" 
-                  }`}
+{(!loading || chat.length > 0) && (
+    <div className="space-y-8">
+      {chat.map((msg, index) => (
+        <motion.div
+          key={index}
+          initial="hidden"
+          animate="visible"
+          variants={messageVariants}
+          transition={{ duration: 0.3 }}
+          className={`flex w-full ${
+            msg.role === "user" ? "justify-end" : "justify-start"
+          }`}
+        >
+          <div
+            className={`rounded-3xl px-4 py-2 break-words ${
+              msg.role === "user"
+                ? "bg-white max-w-[70%] text-black"
+                : " text-black markdown-container"
+            }`}
+          >
+            {typeof msg.content === "string" ? (
+              msg.role === "user" ? (
+                msg.content.split("\n").map((line, i) => (
+                  <p key={i} className="mb-0 leading-relaxed">
+                    {line || "\u00A0"}
+                  </p>
+                ))
+              ) : (
+                <ReactMarkdown
+                  remarkPlugins={[remarkGfm]}
+                  components={{
+                    p: ({ node, ...props }) => <p className="mb-2 last:mb-0" {...props} />,
+                    strong: ({ node, ...props }) => <strong className="font-semibold" {...props} />,
+                    em: ({ node, ...props }) => <em className="italic" {...props} />,
+                    h1: ({ node, ...props }) => <h1 className="text-2xl font-bold my-3" {...props} />,
+                    h2: ({ node, ...props }) => <h2 className="text-xl font-bold my-3" {...props} />,
+                    h3: ({ node, ...props }) => <h3 className="text-lg font-bold my-2" {...props} />,
+                    ul: ({ node, ...props }) => <ul className="list-disc pl-5 my-2" {...props} />,
+                    ol: ({ node, ...props }) => <ol className="list-decimal pl-5 my-2" {...props} />,
+                    li: ({ node, ...props }) => <li className="mb-1" {...props} />,
+                    a: ({ node, ...props }) => (
+                      <a className="text-blue-600 hover:underline" target="_blank" rel="noopener noreferrer" {...props} />
+                    ),
+                    code: ({ node, ...props }) => (
+                      <code className="bg-gray-100 rounded px-1 py-0.5 font-mono text-sm" {...props} />
+                    ),
+                    pre: ({ node, ...props }) => (
+                      <pre className="bg-gray-100 rounded p-3 overflow-x-auto my-3 text-sm" {...props} />
+                    ),
+                    blockquote: ({ node, ...props }) => (
+                      <blockquote className="border-l-4 border-gray-300 pl-4 italic text-gray-600 my-2" {...props} />
+                    ),
+                  }}
                 >
-                  {typeof msg.content === "string" ? (
-                    msg.content.split("\n").map((line, i) => (
-                      <p key={i} className="mb-0 leading-relaxed">
-                        {line || "\u00A0"}
-                      </p>
-                    ))
-                  ) : (
-                    <p className="text-red-500 italic">Invalid message content</p>
-                  )}
-                </div>
-              </motion.div>
-            ))}
+                  {msg.content}
+                </ReactMarkdown>
+              )
+            ) : (
+              <p className="text-red-500 italic">Invalid message content</p>
+            )}
           </div>
-        )}
+        </motion.div>
+      ))}
+    </div>
+  )}
 
         {isSending && (
           <motion.div

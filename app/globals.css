@@ -242,3 +242,52 @@
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 }
+
+
+.markdown-container {
+  & p {
+    margin-bottom: 0.5rem;
+    line-height: 1.6;
+  }
+  
+  & ul, & ol {
+    margin-bottom: 1rem;
+    padding-left: 1.5rem;
+  }
+  
+  & li {
+    margin-bottom: 0.25rem;
+  }
+  
+  & code {
+    background-color: #f3f4f6;
+    padding: 0.2rem 0.4rem;
+    border-radius: 0.25rem;
+    font-family: monospace;
+  }
+  
+  & pre {
+    background-color: #f3f4f6;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    overflow-x: auto;
+    margin: 1rem 0;
+  }
+  
+  & a {
+    color: #3b82f6;
+    text-decoration: underline;
+    
+    &:hover {
+      color: #2563eb;
+    }
+  }
+  
+  & blockquote {
+    border-left: 4px solid #e5e7eb;
+    padding-left: 1rem;
+    color: #6b7280;
+    font-style: italic;
+    margin: 1rem 0;
+  }
+}
