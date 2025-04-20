@@ -1,4 +1,5 @@
 'use client'
+import NutritionTracker from "./NutritionTracker";
 import TrackInput from "./TrackInput";
 import { useState } from "react";
 
@@ -68,8 +69,10 @@ export default function TrackComp() {
 
   return (
     <div className="flex flex-col bg-gradient-to-br from-[#FFDEE9] to-[#B5FFFC] pl-64 min-h-screen p-6">
-      <div>
+      <div className="flex flex-col">
         <TrackInput onSubmit={handleTrackSubmit} />
+
+        <NutritionTracker />
       </div>
 
       {loading && (
@@ -77,6 +80,9 @@ export default function TrackComp() {
           <p>Processing your nutrition data...</p>
         </div>
       )}
+
+
+
 
       <div className="mt-8 ml-24 max-w-6xl">
         {entries.length > 0 && (
