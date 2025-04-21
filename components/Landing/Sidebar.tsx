@@ -15,7 +15,10 @@ import {
   FaCog,
   FaInfoCircle,
   FaSignOutAlt,
+
 } from "react-icons/fa";
+import { Globe } from 'lucide-react';
+
 
 interface NavItem {
   name: string;
@@ -29,8 +32,8 @@ const navItems: NavItem[] = [
   { name: "Ask Leo", href: "/askAI", icon: RiGeminiFill },
   { name: "Analysis", href: "/analysis", icon: MdOutlineAnalytics },
   { name: "History", href: "/history", icon: FaHistory },
-  
   { name: "Reports", href: "/reports", icon: FaFileAlt },
+  { name: "Community", href: "/community", icon: Globe },
 ];
 
 const footerNavItems: NavItem[] = [
