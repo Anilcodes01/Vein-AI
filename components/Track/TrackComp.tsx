@@ -145,8 +145,8 @@ export default function TrackComp() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen p-4 sm:p-6 ml-44 md:pl-64">
-      <div className="flex flex-col w-full max-w-7xl mx-auto">
+    <div className="flex  flex-col min-h-screen p-4 sm:p-6 ml-44 md:pl-64">
+      <div className="flex flex-col w-4xl">
         <TrackInput onSubmit={handleTrackSubmit} isSubmitting={isSubmitting} />
 
         {submitError && (
