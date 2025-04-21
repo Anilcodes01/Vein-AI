@@ -73,6 +73,7 @@ async function generateGeminiResponse({
   - Water consumed: ${nutritionalLogData?.totalWaterMl || "not logged yet"}
   - Mood before meals: ${nutritionalLogData?.moodBefore || "not logged yet"}
   - Mood after meals: ${nutritionalLogData?.moodAfter || "not logged yet"}
+  - What I ate: ${nutritionalLogData?.entries.map(entry => `${entry.description} (${entry.calories} calories)`).join(", ") || "not logged yet"}
 `;
 
     const fullMessage = `${context}\n\nUser question: ${message}`;
