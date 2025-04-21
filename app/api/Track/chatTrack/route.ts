@@ -32,16 +32,10 @@ async function callGeminiNutritionExtractory(description: string) {
       throw new Error("Empty response from Gemini");
     }
 
-    // Clean the response string
     let cleanedJsonString = response.text.trim();
-
-    // Remove JSON markdown if present
     cleanedJsonString = cleanedJsonString.replace(/```json|```/g, "");
-
-    // Parse the JSON
     const parsedData = JSON.parse(cleanedJsonString);
 
-    // Validate the required fields
     const requiredFields = ["calories", "protein", "fat", "carbs"];
     for (const field of requiredFields) {
       if (typeof parsedData[field] !== "number") {
@@ -49,7 +43,6 @@ async function callGeminiNutritionExtractory(description: string) {
       }
     }
 
-    // Set default for optional field
     if (typeof parsedData.waterMl !== "number") {
       parsedData.waterMl = 0;
     }
@@ -71,28 +64,35 @@ export async function POST(req: NextRequest) {
     const userId = session.user.id;
 
     const body = await req.json();
-    const { description, mealtime, timestamp } = body;
+    const { description, mealtime, timestamp, date } = body;
+
+   
+
+    if (!description || !mealtime || !date) {
+      return NextResponse.json({ error: "Missing fields" }, { status: 400 });
+    }
 
     const validMealTimes = ["breakfast", "lunch", "dinner", "snack"] as const;
-    if (!validMealTimes.includes(mealtime)) {
+    if (!validMealTimes.includes(mealtime.toLowerCase())) { // Ensure lowercase check
       return NextResponse.json({ error: "Invalid mealtime" }, { status: 400 });
     }
 
-    if (!description || !mealtime) {
-      return NextResponse.json({ error: "Missing fields" }, { status: 400 });
+    const logDate = new Date(date);
+    if (isNaN(logDate.getTime())) {
+        return NextResponse.json({ error: "Invalid date format. Use YYYY-MM-DD." }, { status: 400 });
     }
+    const startOfDay = new Date(Date.UTC(logDate.getUTCFullYear(), logDate.getUTCMonth(), logDate.getUTCDate()));
+
+    const entryTime = timestamp ? new Date(timestamp) : new Date();
 
     try {
       const parsed = await callGeminiNutritionExtractory(description);
 
-      const entryTime = timestamp ? new Date(timestamp) : new Date();
-      const startOfDay = new Date(entryTime);
-      startOfDay.setUTCHours(0, 0, 0, 0);
 
       let log = await prisma.userNutritionLog.findFirst({
         where: {
           userId,
-          date: startOfDay,
+          date: startOfDay, 
         },
       });
 
@@ -105,12 +105,12 @@ export async function POST(req: NextRequest) {
         });
       }
 
-      const entry = await prisma.nutritionEntry.create({
+      const newEntry = await prisma.nutritionEntry.create({
         data: {
           logId: log.id,
-          time: timestamp ? new Date(timestamp) : new Date(),
-          mealtime: mealtime,
-          source: "chat",
+          time: entryTime, 
+          mealtime: mealtime.toLowerCase(),
+          source: "chat", 
           description,
           calories: parsed.calories,
           protein: parsed.protein,
@@ -120,23 +120,23 @@ export async function POST(req: NextRequest) {
         },
       });
 
-      const entries = await prisma.nutritionEntry.findMany({
+      const allEntriesForLog = await prisma.nutritionEntry.findMany({
         where: { logId: log.id },
       });
 
-      const totals = entries.reduce(
+      const totals = allEntriesForLog.reduce(
         (acc, e) => {
-          acc.calories += e.calories;
-          acc.protein += e.protein;
-          acc.fat += e.fat;
-          acc.carbs += e.carbs;
-          acc.waterMl += e.waterMl;
+          acc.calories += e.calories || 0; 
+          acc.protein += e.protein || 0;
+          acc.fat += e.fat || 0;
+          acc.carbs += e.carbs || 0;
+          acc.waterMl += e.waterMl || 0;
           return acc;
         },
         { calories: 0, protein: 0, fat: 0, carbs: 0, waterMl: 0 }
       );
 
-      const totalEntries = await prisma.userNutritionLog.update({
+      const updatedLog = await prisma.userNutritionLog.update({
         where: { id: log.id },
         data: {
           totalCalories: totals.calories,
@@ -145,9 +145,10 @@ export async function POST(req: NextRequest) {
           totalCarbs: totals.carbs,
           totalWaterMl: totals.waterMl,
         },
+        include: { entries: true }
       });
 
-      return NextResponse.json({ success: true, entry, totalEntries });
+      return NextResponse.json({ success: true, entry: newEntry, updatedLog });
     } catch (error: any) {
       console.error("Nutrition extraction error:", error);
       return NextResponse.json(

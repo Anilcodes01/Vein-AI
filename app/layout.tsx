@@ -1,7 +1,8 @@
+
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Providers from "./providers"; // ✅ Client component
+import Providers from "./providers"; 
 import Appbar from "../components/Landing/Appbar";
 import { DashboardProvider } from "@/contexts/DashboardContext";
 
@@ -37,11 +38,13 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} overflow-y-auto hide-scrollbar antialiased`}
       >
         <Providers>
-          <div className="fixed top-0 w-full">
+          <div className="fixed top-0 w-full z-50">
             <Appbar />
           </div>
           <DashboardProvider>
-            {children}
+            <main className="pt-16"> 
+              {children}
+            </main>
           </DashboardProvider>
         </Providers>
       </body>

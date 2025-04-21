@@ -1,4 +1,4 @@
-// app/types.ts
+
 export type NutritionLog = {
     id: string;
     date: string;
@@ -8,6 +8,9 @@ export type NutritionLog = {
     totalCarbs: number;
     totalWaterMl: number;
     entries: NutritionEntry[];
+    userId?: string;
+    createdAt?: string;
+  updatedAt?: string;
   };
   
   export type NutritionEntry = {
@@ -22,4 +25,5 @@ export type NutritionLog = {
     waterMl: number;
     source: string;
     createdAt: string;
+    userId?: string;
   };

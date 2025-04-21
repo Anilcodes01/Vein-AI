@@ -1,143 +1,170 @@
-'use client'
+"use client";
 import NutritionTracker from "./NutritionTracker";
 import TrackInput from "./TrackInput";
-import { useState } from "react";
-
-interface NutritionEntry {
-  id: string;
-  time: string;
-  mealtime: string;
-  description: string;
-  calories: number;
-  protein: number;
-  fat: number;
-  carbs: number;
-  waterMl: number;
-}
-
-interface TotalEntries {
-  totalCalories: number;
-  totalProtein: number;
-  totalFat: number;
-  totalCarbs: number;
-  totalWaterMl: number;
-}
+import { useEffect, useState, useCallback } from "react";
+import { useDashboard } from '@/contexts/DashboardContext';
+import { NutritionLog, NutritionEntry } from "@/app/lib/types";
+import { DashboardData } from "@/lib/types";
 
 export default function TrackComp() {
-  const [entries, setEntries] = useState<NutritionEntry[]>([]);
-  const [totals, setTotals] = useState<TotalEntries>({
-    totalCalories: 0,
-    totalProtein: 0,
-    totalFat: 0,
-    totalCarbs: 0,
-    totalWaterMl: 0
-  });
-  const [loading, setLoading] = useState(false);
+  const [nutritionLogs, setNutritionLogs] = useState<NutritionLog[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const { data: dashboardData, loading: dashboardLoading, error: dashboardError } = useDashboard();
 
-  const handleTrackSubmit = async (data: { 
-    input: string; 
+  const fetchNutritionData = useCallback(async (date: string) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await fetch(`/api/Track/getTracks?date=${date}`);
+      if (!response.ok) {
+         let errorMsg = `Failed to fetch nutrition data (Status: ${response.status})`;
+         try {
+             const errorData = await response.json();
+             errorMsg = errorData.message || errorData.error || errorMsg;
+         } catch (_) {}
+         throw new Error(errorMsg);
+      }
+      const data: NutritionLog[] = await response.json();
+      const validatedData = (Array.isArray(data) ? data : (data ? [data] : []))
+        .filter(log => log && log.id)
+        .map(log => ({
+            ...log,
+            entries: (Array.isArray(log.entries) ? log.entries : []).filter(entry => entry && entry.id)
+        }));
+      setNutritionLogs(validatedData);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An unknown error occurred');
+      setNutritionLogs([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchNutritionData(selectedDate);
+  }, [selectedDate, fetchNutritionData]);
+
+  const handleTrackSubmit = async (data: {
+    input: string;
     mealTime: string;
     timestamp: string;
   }) => {
+    setIsSubmitting(true);
+    setSubmitError(null);
+
     try {
-      setLoading(true);
       const response = await fetch('/api/Track/chatTrack', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           description: data.input,
           mealtime: data.mealTime,
-          timestamp: data.timestamp
+          timestamp: data.timestamp,
+          date: selectedDate,
         }),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to save nutrition data');
+        let errorMsg = `Failed to save entry (Status: ${response.status})`;
+         try {
+            const errorData = await response.json();
+            errorMsg = errorData.error || errorData.message || errorMsg;
+            const details = errorData.details ? ` Details: ${errorData.details}` : '';
+            const suggestion = errorData.suggestion ? ` Suggestion: ${errorData.suggestion}` : '';
+            errorMsg = `${errorMsg}${details}${suggestion}`;
+         } catch (e) {}
+        throw new Error(errorMsg);
       }
 
       const result = await response.json();
-      setEntries(prev => [...prev, result.entry]);
-      setTotals(result.totalEntries);
+
+      if (!result || !result.success || !result.entry || !result.entry.id) {
+          throw new Error("Received invalid data from server after submission.");
+      }
+
+      const newEntry = result.entry as NutritionEntry;
+
+      setNutritionLogs((prevLogs) => {
+          const logIndex = prevLogs.findIndex(log => {
+              try {
+                  const logDate = new Date(log.date);
+                  const selectedLogDate = new Date(selectedDate + 'T00:00:00Z');
+                  return logDate.getUTCFullYear() === selectedLogDate.getUTCFullYear() &&
+                         logDate.getUTCMonth() === selectedLogDate.getUTCMonth() &&
+                         logDate.getUTCDate() === selectedLogDate.getUTCDate();
+              } catch (dateError) {
+                  return false;
+              }
+          });
+
+          let updatedLogs = [...prevLogs];
+
+          if (logIndex > -1) {
+              const targetLog = updatedLogs[logIndex];
+              const entryExists = targetLog.entries.some(e => e.id === newEntry.id);
+              if (!entryExists) {
+                 updatedLogs[logIndex] = {
+                     ...targetLog,
+                     entries: [...targetLog.entries, newEntry].sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime()),
+                 };
+              }
+          } else {
+              const newLog: NutritionLog = {
+                  id: result.updatedLog?.id || `new-log-${Date.now()}`,
+                  userId: result.updatedLog?.userId || '',
+                  date: new Date(selectedDate + 'T00:00:00Z').toISOString(),
+                  entries: [newEntry].sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime()),
+                  totalCalories: result.updatedLog?.totalCalories ?? newEntry.calories ?? 0,
+                  totalProtein: result.updatedLog?.totalProtein ?? newEntry.protein ?? 0,
+                  totalFat: result.updatedLog?.totalFat ?? newEntry.fat ?? 0,
+                  totalCarbs: result.updatedLog?.totalCarbs ?? newEntry.carbs ?? 0,
+                  totalWaterMl: result.updatedLog?.totalWaterMl ?? newEntry.waterMl ?? 0,
+                  createdAt: result.updatedLog?.createdAt || new Date().toISOString(),
+                  updatedAt: result.updatedLog?.updatedAt || new Date().toISOString(),
+              };
+              updatedLogs.push(newLog);
+              updatedLogs.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+          }
+
+          return updatedLogs;
+      });
+
     } catch (error) {
-      console.error('Error:', error);
+      setSubmitError(error instanceof Error ? error.message : 'An unknown submission error occurred');
     } finally {
-      setLoading(false);
+      setIsSubmitting(false);
     }
   };
 
+  const handleDateChange = (newDate: string) => {
+      setSelectedDate(newDate);
+  };
+
   return (
-    <div className="flex flex-col bg-gradient-to-br from-[#FFDEE9] to-[#B5FFFC] pl-64 min-h-screen p-6">
-      <div className="flex flex-col">
-        <TrackInput onSubmit={handleTrackSubmit} />
+    <div className="flex flex-col min-h-screen p-4 sm:p-6 ml-44 md:pl-64">
+      <div className="flex flex-col w-full max-w-7xl mx-auto">
+        <TrackInput onSubmit={handleTrackSubmit} isSubmitting={isSubmitting} />
 
-        <NutritionTracker />
-      </div>
-
-      {loading && (
-        <div className="ml-24 mt-4">
-          <p>Processing your nutrition data...</p>
-        </div>
-      )}
-
-
-
-
-      <div className="mt-8 ml-24 max-w-6xl">
-        {entries.length > 0 && (
-          <>
-            <h2 className="text-xl font-bold mb-4">Today's Nutrition Entries</h2>
-            <div className="grid grid-cols-1 gap-4 mb-8">
-              {entries.map((entry, index) => (
-                <div key={index} className="bg-white/70 p-4 rounded-lg shadow">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h3 className="font-semibold capitalize">{entry.mealtime}</h3>
-                      <p className="text-gray-700">{entry.description}</p>
-                      <p className="text-sm text-gray-500">
-                        {new Date(entry.time).toLocaleTimeString()}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-medium">{entry.calories} kcal</p>
-                      <div className="flex gap-2 text-xs">
-                        <span>P: {entry.protein}g</span>
-                        <span>F: {entry.fat}g</span>
-                        <span>C: {entry.carbs}g</span>
-                        {entry.waterMl > 0 && <span>Water: {entry.waterMl}ml</span>}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <h2 className="text-xl font-bold mb-4">Daily Totals</h2>
-            <div className="bg-white/70 p-4 rounded-lg shadow grid grid-cols-5 gap-4">
-              <div className="text-center">
-                <p className="text-sm text-gray-500">Calories</p>
-                <p className="font-bold">{totals.totalCalories} kcal</p>
-              </div>
-              <div className="text-center">
-                <p className="text-sm text-gray-500">Protein</p>
-                <p className="font-bold">{totals.totalProtein}g</p>
-              </div>
-              <div className="text-center">
-                <p className="text-sm text-gray-500">Fat</p>
-                <p className="font-bold">{totals.totalFat}g</p>
-              </div>
-              <div className="text-center">
-                <p className="text-sm text-gray-500">Carbs</p>
-                <p className="font-bold">{totals.totalCarbs}g</p>
-              </div>
-              <div className="text-center">
-                <p className="text-sm text-gray-500">Water</p>
-                <p className="font-bold">{totals.totalWaterMl}ml</p>
-              </div>
-            </div>
-          </>
+        {submitError && (
+          <div className="mt-4 md:ml-24 max-w-6xl p-3 rounded-md bg-error/20 border border-error/30 text-error text-sm" role="alert">
+            <p><strong>Failed to add entry:</strong> {submitError}</p>
+          </div>
         )}
+
+        <NutritionTracker
+          nutritionLogs={nutritionLogs}
+          loading={loading && nutritionLogs.length === 0}
+          error={error}
+          selectedDate={selectedDate}
+          onDateChange={handleDateChange}
+          dashboardData={dashboardData as DashboardData | null}
+          dashboardLoading={dashboardLoading}
+          dashboardError={dashboardError}
+        />
       </div>
     </div>
   );
