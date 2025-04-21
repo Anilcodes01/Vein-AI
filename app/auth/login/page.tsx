@@ -42,15 +42,15 @@ export default function Login() {
   };
 
   return (
-    <div className="flex flex-col items-center bg-gradient-to-br from-[#FFDEE9] justify-center to-[#B5FFFC] min-h-screen">
+    <div className="flex flex-col items-center bg-gradient-to-br from-[#FFDEE9] justify-center to-[#B5FFFC] min-h-screen px-4 sm:px-6">
       <Toaster position="top-right" />
-      <div className="border p-5 rounded-2xl flex flex-col items-center border-gray-300  justify-center w-xl">
-        <h1 className="text-2xl font-bold md:text-3xl mt-4">Welcome back</h1>
-        <p className="mt-2">Sign in to your account to continue</p>
+      <div className="border p-4 sm:p-5 rounded-2xl flex flex-col items-center border-gray-300 justify-center w-full max-w-sm md:max-w-md">
+        <h1 className="text-xl font-bold md:text-3xl mt-4">Welcome back</h1>
+        <p className="mt-2 text-sm sm:text-base text-center">Sign in to your account to continue</p>
 
-        <div className=" flex flex-col items-center w-full p-8 justify-center gap-4">
+        <div className="flex flex-col items-center w-full p-4 sm:p-8 justify-center gap-4">
           <div className="flex gap-2 w-full flex-col">
-            <label className="ml-1" htmlFor="Email">
+            <label className="ml-1 text-sm sm:text-base" htmlFor="Email">
               Email
             </label>
             <input
@@ -58,11 +58,11 @@ export default function Login() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter your email"
-              className="border px-2 py-2 outline-none text-sm border-gray-300 rounded-lg w-full "
+              className="border px-2 py-2 outline-none text-sm border-gray-300 rounded-lg w-full"
             />
           </div>
-          <div className="flex gap-2 w-full  flex-col">
-            <label className="ml-1" htmlFor="Password">
+          <div className="flex gap-2 w-full flex-col">
+            <label className="ml-1 text-sm sm:text-base" htmlFor="Password">
               Password
             </label>
             <input
@@ -85,7 +85,7 @@ export default function Login() {
           </button>
 
           <SocialLogin />
-          <div className="flex gap-1">
+          <div className="flex gap-1 text-sm sm:text-base">
             <p>No Account?</p>
             <button
               onClick={() => router.push("/auth/register")}

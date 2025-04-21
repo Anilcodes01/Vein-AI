@@ -8,13 +8,10 @@ export default function DashboardComp() {
   const { data: session } = useSession();
   const { data, loading, error, refreshData } = useDashboard();
   const router = useRouter();
-  // isMobile state is kept in case it's needed for other logic,
-  // but button visibility is handled by Tailwind classes now.
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     const checkScreenSize = () => {
-      // We still check screen size for potential future use or other components
       setIsMobile(window.innerWidth < 768);
     };
 
