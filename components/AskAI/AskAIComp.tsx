@@ -8,6 +8,7 @@ import axios from "axios";
 import { ChatMessage, ApiResponse } from "@/lib/types";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import Image from "next/image";
 
 export default function AskAIComp() {
   const [input, setInput] = useState("");
@@ -69,21 +70,8 @@ export default function AskAIComp() {
       <div className="flex-1 overflow-y-auto p-4 w-4xl mt-16 ml-44 md:p-6 hide-scrollbar">
         {chat.length === 0 && !loading && (
           <div className="flex flex-col items-center justify-center h-full text-center p-4">
-            <div className="bg-green-100 p-4 md:p-6 rounded-full mb-4">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-10 w-10 md:h-12 md:w-12 text-green-600"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
+            <div className="bg-green-100 p-2 md:p-2 rounded-full mb-4">
+             <Image src="/logot.png" alt="logo" width={200} height={200} className="h-20 w-20" />
             </div>
             <h2 className="text-xl md:text-2xl font-semibold text-gray-700 mb-2">
               Welcome to Vein
