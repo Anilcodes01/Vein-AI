@@ -5,6 +5,7 @@ import "./globals.css";
 import Providers from "./providers"; 
 import Appbar from "../components/Landing/Appbar";
 import { DashboardProvider } from "@/contexts/DashboardContext";
+import { NutritionProvider } from '@/contexts/NutritionContext';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -42,9 +43,12 @@ export default function RootLayout({
             <Appbar />
           </div>
           <DashboardProvider>
-            <main className="pt-16"> 
+          <NutritionProvider>
+          <main className="pt-16"> 
               {children}
             </main>
+          </NutritionProvider>
+           
           </DashboardProvider>
         </Providers>
       </body>

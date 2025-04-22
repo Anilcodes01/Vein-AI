@@ -79,3 +79,9 @@ interface NutritionTrackerProps {
     dashboardLoading: boolean;
     dashboardError: string | null;
 }
+
+export 
+interface TrackInputProps {
+  onSubmit: (data: { input: string; mealTime: string; timestamp: string }) => Promise<void>;
+  isSubmitting: boolean;
+}
