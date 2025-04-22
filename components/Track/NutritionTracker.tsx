@@ -50,7 +50,7 @@ export default function NutritionTracker({
   const targetFat = parseFloat(dashboardData?.fatIntake as string || '0') || 0;
   const targetCarbs = parseFloat(dashboardData?.carbsIntake as string || '0') || 0;
   const targetWaterLiters = parseInt(dashboardData?.waterIntake as string || '0', 10) || 0; 
-  const targetWaterMl = targetWaterLiters * 1000;
+  const targetWaterMl = targetWaterLiters ;
 
   const isOverallLoading = loading || dashboardLoading;
   const overallError = error || dashboardError; 

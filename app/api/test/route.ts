@@ -120,7 +120,7 @@ export async function POST(req: Request) {
       data: {
         userId: userId!,
         calorieIntake: nutritionalData.calorieIntake,
-        waterIntake: nutritionalData.waterIntakeLiters,
+        waterIntake: nutritionalData.waterIntakeLiters * 1000,
         carbohydrateIntake: nutritionalData.carbohydrateIntake,
         fatIntake: nutritionalData.fatIntake,
         proteinIntake: nutritionalData.proteinIntake,

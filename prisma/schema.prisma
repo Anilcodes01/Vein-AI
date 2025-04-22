@@ -21,6 +21,7 @@ model User {
   userDashData     UserDashData[]
   conversations    Conversation[]
   userNutritionLog UserNutritionLog[]
+  streak           Streak[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -153,21 +154,21 @@ enum Role {
 }
 
 model UserNutritionLog {
-  id             String             @id @default(uuid())
-  userId         String
-  date           DateTime
-  entries        NutritionEntry[]
-  totalCalories  Int                @default(0)
-  totalProtein   Float              @default(0.0)
-  totalFat       Float              @default(0.0)
-  totalCarbs     Float              @default(0.0)
-  totalWaterMl   Int                @default(0)           
-  moodBefore     String?           
-  moodAfter      String?
+  id            String           @id @default(uuid())
+  userId        String
+  date          DateTime
+  entries       NutritionEntry[]
+  totalCalories Int              @default(0)
+  totalProtein  Float            @default(0.0)
+  totalFat      Float            @default(0.0)
+  totalCarbs    Float            @default(0.0)
+  totalWaterMl  Int              @default(0)
+  moodBefore    String?
+  moodAfter     String?
 
-  user           User               @relation(fields: [userId], references: [id])
-  createdAt      DateTime           @default(now())
-  updatedAt      DateTime           @updatedAt
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 enum MealTime {
@@ -194,10 +195,23 @@ model NutritionEntry {
   updatedAt   DateTime         @updatedAt
 }
 
-
 enum EntrySource {
   manual
   photo
   chat
   auto_suggest
+}
+
+model Streak {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  type        String   @default("water")
+  current     Int      @default(0) 
+  longest     Int      @default(0) 
+  lastUpdated DateTime @default(now()) 
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([userId, type]) 
 }

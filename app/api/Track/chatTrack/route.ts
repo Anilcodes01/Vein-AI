@@ -55,6 +55,75 @@ async function callGeminiNutritionExtractory(description: string) {
   }
 }
 
+async function updateUserWaterStreak(userId: string, logDate: Date, totalWaterMlToday: number) {
+  try {
+      console.log(`Updating water streak for user ${userId} on date ${logDate.toISOString()}`);
+
+      const userDashData = await prisma.userDashData.findFirst({
+          where: { userId },
+      });
+
+      if (!userDashData || !userDashData.waterIntake || userDashData.waterIntake <= 0) {
+          console.log(`User ${userId} has no water intake goal set. Skipping streak update.`);
+          return null;
+      }
+
+      const waterGoal = userDashData.waterIntake;
+      const goalMet = totalWaterMlToday >= waterGoal;
+
+      console.log(`User ${userId} water goal: ${waterGoal}ml, Today's total: ${totalWaterMlToday}ml. Goal met: ${goalMet}`);
+
+      const startOfDay = new Date(Date.UTC(logDate.getUTCFullYear(), logDate.getUTCMonth(), logDate.getUTCDate()));
+      const startOfYesterday = new Date(startOfDay);
+      startOfYesterday.setUTCDate(startOfYesterday.getUTCDate() - 1);
+
+      const currentStreak = await prisma.streak.findUnique({
+          where: { userId_type: { userId, type: 'water' } },
+      });
+
+      let newCurrentStreak = 0;
+      let newLongestStreak = currentStreak?.longest ?? 0;
+
+      const isConsecutive = currentStreak && currentStreak.lastUpdated >= startOfYesterday && currentStreak.lastUpdated < startOfDay;
+
+      if (goalMet) {
+          if (isConsecutive) {
+              newCurrentStreak = (currentStreak?.current ?? 0) + 1;
+          } else {
+              newCurrentStreak = 1;
+          }
+          newLongestStreak = Math.max(newLongestStreak, newCurrentStreak);
+      } else {
+          newCurrentStreak = 0;
+      }
+
+      console.log(`Values before upsert: newCurrentStreak=${newCurrentStreak}, newLongestStreak=${newLongestStreak}, lastUpdated=${startOfDay.toISOString()}`);
+
+      const updatedStreak = await prisma.streak.upsert({
+          where: { userId_type: { userId, type: 'water' } },
+          create: {
+              userId,
+              type: 'water',
+              current: newCurrentStreak,
+              longest: newLongestStreak,
+              lastUpdated: startOfDay,
+          },
+          update: {
+              current: newCurrentStreak,
+              longest: newLongestStreak,
+              lastUpdated: startOfDay,
+          },
+      });
+
+      console.log(`Successfully updated/re-evaluated water streak for user ${userId}:`, updatedStreak);
+      return updatedStreak;
+
+  } catch (error) {
+      console.error(`Error updating water streak for user ${userId}:`, error);
+      return null;
+  }
+}
+
 export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
@@ -66,14 +135,12 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { description, mealtime, timestamp, date } = body;
 
-   
-
     if (!description || !mealtime || !date) {
       return NextResponse.json({ error: "Missing fields" }, { status: 400 });
     }
 
     const validMealTimes = ["breakfast", "lunch", "dinner", "snack"] as const;
-    if (!validMealTimes.includes(mealtime.toLowerCase())) { // Ensure lowercase check
+    if (!validMealTimes.includes(mealtime.toLowerCase())) {
       return NextResponse.json({ error: "Invalid mealtime" }, { status: 400 });
     }
 
@@ -87,7 +154,6 @@ export async function POST(req: NextRequest) {
 
     try {
       const parsed = await callGeminiNutritionExtractory(description);
-
 
       let log = await prisma.userNutritionLog.findFirst({
         where: {
@@ -148,7 +214,10 @@ export async function POST(req: NextRequest) {
         include: { entries: true }
       });
 
-      return NextResponse.json({ success: true, entry: newEntry, updatedLog });
+      const updatedStreak = await updateUserWaterStreak(userId, logDate, updatedLog.totalWaterMl);
+      console.log("Streak updated:", updatedStreak);
+
+      return NextResponse.json({ success: true, entry: newEntry, updatedLog, streakInfo: updatedStreak  });
     } catch (error: any) {
       console.error("Nutrition extraction error:", error);
       return NextResponse.json(

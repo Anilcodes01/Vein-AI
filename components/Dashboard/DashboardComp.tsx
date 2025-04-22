@@ -3,6 +3,7 @@ import { useDashboard } from "../../contexts/DashboardContext";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import StreakDisplay from "../Community/Streak";
 
 export default function DashboardComp() {
   const { data: session } = useSession();
@@ -119,7 +120,7 @@ export default function DashboardComp() {
                 </div>
                 <p className="text-xl md:text-3xl font-bold text-gray-800">
                   {data.waterIntake}
-                  <span className="text-sm md:text-lg">L</span>
+                  <span className="text-sm md:text-lg">ml</span>
                 </p>
                 <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mt-1">
                   Water
@@ -195,6 +196,10 @@ export default function DashboardComp() {
       <p className="text-xs text-gray-600 mt-4">
         Vein AI - Track your nutrition and wellness journey
       </p>
+
+      <div className=" absolute top-0 right-8 mt-16">
+        <StreakDisplay />
+       </div>
     </div>
   );
 }
