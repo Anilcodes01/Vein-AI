@@ -85,3 +85,19 @@ interface TrackInputProps {
   onSubmit: (data: { input: string; mealTime: string; timestamp: string }) => Promise<void>;
   isSubmitting: boolean;
 }
+
+
+// src/lib/types.ts (or wherever you keep your types)
+
+export interface CommunityUser {
+  id: string;
+  name: string | null;
+  username: string | null;
+  // --- Updated Streak Type ---
+  streak: {
+    current: number | null; // Current streak value
+    longest: number | null; // Longest streak value (if needed later)
+  } | null; // The whole streak object could be null
+  // --- End Update ---
+  image: string | null;
+}
