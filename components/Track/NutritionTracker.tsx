@@ -109,7 +109,7 @@ export default function NutritionTracker({
   if (isOverallLoading) {
 
     return (
-        <div className="flex justify-center items-center h-64 w-full mx-auto mt-8"> {/* Adjusted width */}
+        <div className="flex justify-center items-center h-64 w-4xl ml-36 mt-8"> 
           <div className="flex flex-col items-center gap-3 text-center">
             <Loader2 className="w-10 h-10 text-blue-500 animate-spin" />
             <span className="text-gray-600 dark:text-gray-400">Loading nutrition data...</span>
@@ -121,7 +121,7 @@ export default function NutritionTracker({
   if (overallError) {
 
      return (
-      <div className="w-full mx-auto mt-8 p-6 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-700/50"> {/* Adjusted width */}
+      <div className="w-4xl ml-36 mt-8 p-6 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-700/50"> 
         <div className="flex items-start text-red-700 dark:text-red-400">
           <AlertCircle className="w-5 h-5 mr-3 flex-shrink-0 mt-0.5" />
           <div>
