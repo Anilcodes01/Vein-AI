@@ -25,12 +25,12 @@ export default function TrackComp() {
     timestamp: string;
   }) => {
     try {
-        await addNutritionEntry({
-            ...data,
-            date: selectedDate,
-        });
+      await addNutritionEntry({
+        ...data,
+        date: selectedDate,
+      });
     } catch (e) {
-        console.error("Submission failed in TrackComp:", e);
+      console.error("Submission failed in TrackComp:", e);
     }
   };
 
@@ -47,7 +47,7 @@ export default function TrackComp() {
         />
 
         {submitError && (
-          <div className="mt-4 w-4xl ml-36 p-3 rounded-md bg-error/20 border border-error/30 text-error text-sm" role="alert">
+          <div className="mt-4 w-full p-3 rounded-md bg-error/20 border border-error/30 text-error text-sm" role="alert">
             <p><strong>Failed to add entry:</strong> {submitError}</p>
           </div>
         )}

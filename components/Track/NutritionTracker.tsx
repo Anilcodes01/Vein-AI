@@ -3,10 +3,12 @@ import { NutritionLog, NutritionEntry } from '../../app/lib/types';
 import ProgressCircle from './ProgressCircle';
 import { DailyTotals } from '@/lib/types';
 import { NutritionTrackerProps } from '@/lib/types';
+import { useNutrition } from '@/contexts/NutritionContext'; 
 import {
   Utensils, Cookie, Loader2, AlertCircle,
   Calendar, Database, Search,
-  Clock, Flame, Droplet, Coffee, UtensilsCrossed, Drumstick
+  Clock, Flame, Droplet, Coffee, UtensilsCrossed, Drumstick,
+  Trash2 
 } from 'lucide-react';
 import { TbMeat } from "react-icons/tb";
 import { PiGrains } from "react-icons/pi";
@@ -23,16 +25,17 @@ export default function NutritionTracker({
   dashboardError
 }: NutritionTrackerProps) {
 
+  const { deleteNutritionEntry, isDeleting, deleteError } = useNutrition();
 
   const calculateDailyTotals = (logs: NutritionLog[]): DailyTotals => {
       const todayLogs = logs.filter(log => {
-
           try {
-              const logDateLocal = new Date(log.date).toLocaleDateString();
-              const selectedDateLocal = new Date(selectedDate + 'T00:00:00').toLocaleDateString();
-              return logDateLocal === selectedDateLocal;
+              const logDate = new Date(log.date);
+              const selectedDateObj = new Date(selectedDate + 'T00:00:00Z');
+              return logDate.getUTCFullYear() === selectedDateObj.getUTCFullYear() &&
+                     logDate.getUTCMonth() === selectedDateObj.getUTCMonth() &&
+                     logDate.getUTCDate() === selectedDateObj.getUTCDate();
           } catch {
-
               const logDateStr = new Date(log.date).toISOString().split('T')[0];
               return logDateStr === selectedDate;
           }
@@ -40,7 +43,7 @@ export default function NutritionTracker({
 
       return todayLogs.reduce(
           (totals, log) => {
-              log.entries.forEach((entry: NutritionEntry) => {
+              (log.entries || []).forEach((entry: NutritionEntry) => {
                   totals.calories += entry.calories || 0;
                   totals.protein += entry.protein || 0;
                   totals.fat += entry.fat || 0;
@@ -60,9 +63,8 @@ export default function NutritionTracker({
   const targetProtein = parseFloat(dashboardData?.proteinIntake as string || '0') || 0;
   const targetFat = parseFloat(dashboardData?.fatIntake as string || '0') || 0;
   const targetCarbs = parseFloat(dashboardData?.carbsIntake as string || '0') || 0;
-
   const targetWaterLiters = parseInt(dashboardData?.waterIntake as string || '0', 10) || 0;
-  const targetWaterMl = targetWaterLiters ;
+  const targetWaterMl = targetWaterLiters ; 
 
 
   const isOverallLoading = loading || dashboardLoading;
@@ -83,27 +85,43 @@ export default function NutritionTracker({
   };
 
   const formatDisplayDate = (dateString: string): string => {
-      const date = new Date(dateString + 'T00:00:00');
-      const options: Intl.DateTimeFormatOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-      return date.toLocaleDateString('en-US', options);
+      try {
+          const date = new Date(dateString + 'T00:00:00Z'); 
+          const options: Intl.DateTimeFormatOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' };
+          return date.toLocaleDateString('en-US', options);
+      } catch {
+          return "Invalid Date"; 
+      }
+  };
+
+  const handleDeleteClick = async (entryId: string) => {
+
+      try {
+          await deleteNutritionEntry(entryId);
+
+      } catch (e) {
+
+          console.error("Delete failed in component:", e);
+      }
   };
 
 
-
   if (isOverallLoading) {
+
     return (
-      <div className="flex justify-center items-center h-64 w-4xl ml-36 mx-auto mt-8">
-        <div className="flex flex-col items-center gap-3 text-center">
-          <Loader2 className="w-10 h-10 text-blue-500 animate-spin" />
-          <span className="text-gray-600 dark:text-gray-400">Loading nutrition data...</span>
+        <div className="flex justify-center items-center h-64 w-full mx-auto mt-8"> {/* Adjusted width */}
+          <div className="flex flex-col items-center gap-3 text-center">
+            <Loader2 className="w-10 h-10 text-blue-500 animate-spin" />
+            <span className="text-gray-600 dark:text-gray-400">Loading nutrition data...</span>
+          </div>
         </div>
-      </div>
-    );
+      );
   }
 
   if (overallError) {
-    return (
-      <div className="w-4xl ml-36 mx-auto mt-8 p-6 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-700/50">
+
+     return (
+      <div className="w-full mx-auto mt-8 p-6 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-700/50"> {/* Adjusted width */}
         <div className="flex items-start text-red-700 dark:text-red-400">
           <AlertCircle className="w-5 h-5 mr-3 flex-shrink-0 mt-0.5" />
           <div>
@@ -115,12 +133,13 @@ export default function NutritionTracker({
     );
   }
 
-
-  const currentLog = nutritionLogs.find(log => {
+   const currentLog = nutritionLogs.find(log => {
      try {
-        const logDateLocal = new Date(log.date).toLocaleDateString();
-        const selectedDateLocal = new Date(selectedDate + 'T00:00:00').toLocaleDateString();
-        return logDateLocal === selectedDateLocal;
+        const logDate = new Date(log.date);
+        const selectedDateObj = new Date(selectedDate + 'T00:00:00Z');
+        return logDate.getUTCFullYear() === selectedDateObj.getUTCFullYear() &&
+               logDate.getUTCMonth() === selectedDateObj.getUTCMonth() &&
+               logDate.getUTCDate() === selectedDateObj.getUTCDate();
      } catch {
         const logDateStr = new Date(log.date).toISOString().split('T')[0];
         return logDateStr === selectedDate;
@@ -129,32 +148,29 @@ export default function NutritionTracker({
 
   return (
 
-    <div className="w-4xl ml-36  mx- px-0 md:px-4 py-6 space-y-8">
-
-      <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-      <h1 className="text-2xl font-medium text-gray-800 dark:text-gray-100">
-          Nutrition Tracker
-        </h1>
-        <div className="relative">
-          <label htmlFor="date-picker" className="sr-only">Select Date</label>
-          <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-            <Calendar className="w-4 h-4 text-gray-400 dark:text-gray-500" />
+    <div className="w-full mx-auto px-0 md:px-4 py-6 ml-36 space-y-8">
+       <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+          <h1 className="text-2xl font-medium text-gray-800 dark:text-gray-100">
+            Nutrition Tracker
+          </h1>
+          <div className="relative">
+            <label htmlFor="date-picker" className="sr-only">Select Date</label>
+            <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+              <Calendar className="w-4 h-4 text-gray-400 dark:text-gray-500" />
+            </div>
+            <input
+              id="date-picker"
+              type="date"
+              value={selectedDate}
+              onChange={(e) => onDateChange(e.target.value)}
+              className="pl-10 pr-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 transition-all text-sm text-gray-700 dark:text-gray-300 shadow-sm"
+            />
           </div>
-          <input
-            id="date-picker"
-            type="date"
-            value={selectedDate}
-            onChange={(e) => onDateChange(e.target.value)}
-            className="pl-10 pr-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 transition-all text-sm text-gray-700 dark:text-gray-300 shadow-sm"
-          />
         </div>
-      </div>
 
-      <div className="text-center text-gray-600 dark:text-gray-300 text-lg font-light mb-6">
-        {formatDisplayDate(selectedDate)}
-      </div>
-
-
+        <div className="text-center text-gray-600 dark:text-gray-300 text-lg font-light mb-6">
+          {formatDisplayDate(selectedDate)}
+        </div>
       {showProgressCircles && (
         <div className="bg-white dark:bg-gray-800/50 rounded-xl shadow p-6 border border-gray-200 dark:border-gray-700/50">
           <h2 className="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-6 flex items-center gap-2">
@@ -170,28 +186,29 @@ export default function NutritionTracker({
           </div>
         </div>
       )}
-
-
-      {!showProgressCircles && !isOverallLoading && !overallError && (
+       {!showProgressCircles && !isOverallLoading && !overallError && (
          <div className="bg-white dark:bg-gray-800/50 rounded-xl shadow p-6 text-center border border-gray-200 dark:border-gray-700/50">
           <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-blue-100 dark:bg-blue-900/20 flex items-center justify-center">
             <Database className="h-6 w-6 text-blue-500" />
           </div>
           <h3 className="text-lg font-semibold mb-2 text-gray-800 dark:text-gray-200">Set Your Goals</h3>
           <p className="text-gray-600 dark:text-gray-400 max-w-md mx-auto text-sm">Track your progress against daily targets. Set your calorie, macro, and water goals in your Profile to enable the summary view.</p>
-
         </div>
       )}
 
+       {deleteError && (
+          <div className="my-4 p-3 rounded-md bg-error/20 border border-error/30 text-error text-sm" role="alert">
+            <p><strong>Failed to delete entry:</strong> {deleteError}</p>
+          </div>
+        )}
 
       <div>
-      <h2 className="text-lg font-medium text-gray-800 dark:text-gray-200 mb-4">
+        <h2 className="text-lg font-medium text-gray-800 dark:text-gray-200 mb-4">
           Today's Entries
         </h2>
 
-
         {(!currentLog || currentLog.entries.length === 0) ? (
-          <div className="bg-white dark:bg-gray-800/50 rounded-xl shadow p-8 text-center border border-gray-200 dark:border-gray-700/50">
+           <div className="bg-white dark:bg-gray-800/50 rounded-xl shadow p-8 text-center border border-gray-200 dark:border-gray-700/50">
             <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
               <Search className="h-6 w-6 text-gray-500 dark:text-gray-400" />
             </div>
@@ -204,24 +221,34 @@ export default function NutritionTracker({
             {currentLog.entries.map((entry: NutritionEntry) => (
               <div
                 key={entry.id}
-                className="bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700 overflow-hidden transition-shadow duration-200 hover:shadow-lg"
+                className="bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700 overflow-hidden transition-shadow duration-200 hover:shadow-md" // Slightly increased hover shadow
               >
-                <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/30 border-b border-gray-200 dark:border-gray-700">
+                 <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/30 border-b border-gray-200 dark:border-gray-700">
                    <div className="flex items-center space-x-3">
                      {getMealIcon(entry.mealtime)}
                      <h3 className="font-semibold text-base text-gray-800 dark:text-gray-200 capitalize">
                        {entry.mealtime || 'Uncategorized'}
                      </h3>
                    </div>
-                   <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
-                     <Clock className="w-3.5 h-3.5 mr-1.5" />
-                     {new Date(entry.time).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'})}
+                   <div className="flex items-center space-x-3">
+                     <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
+                       <Clock className="w-3.5 h-3.5 mr-1.5" />
+                       {new Date(entry.time).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'})}
+                     </div>
+                     <button
+                       onClick={() => handleDeleteClick(entry.id)}
+                       disabled={isDeleting}
+                       aria-label="Delete entry"
+                       title="Delete entry"
+                       className={`p-1 rounded-md text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1 dark:focus:ring-offset-gray-800 transition-colors duration-150 ${isDeleting ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      >
+                         <Trash2 className="w-4 h-4" />
+                     </button>
                    </div>
                  </div>
 
                 <div className="p-4 space-y-4">
                   <p className="text-gray-700 dark:text-gray-300 text-sm">{entry.description}</p>
-
 
                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 text-xs">
 
@@ -272,7 +299,6 @@ export default function NutritionTracker({
                          </div>
                        )}
                     </div>
-
 
                   <div className="text-xs text-gray-500 dark:text-gray-500 flex items-center pt-2 border-t border-gray-100 dark:border-gray-700/50">
                     <Database className="w-3.5 h-3.5 mr-1.5 flex-shrink-0" />

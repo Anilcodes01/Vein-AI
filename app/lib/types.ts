@@ -36,6 +36,8 @@ export type NutritionLog = {
     selectedDate: string;
     isSubmitting: boolean; 
     submitError: string | null;
+    isDeleting: boolean;       // <-- Add this
+  deleteError: string | null; 
   }
   
   // Define the shape of the actions
@@ -48,4 +50,5 @@ export type NutritionLog = {
       date: string; // Explicitly pass date needed for submission
     }) => Promise<void>;
     changeSelectedDate: (newDate: string) => void;
+    deleteNutritionEntry: (entryId: string) => Promise<void>;
   }

@@ -23,11 +23,14 @@ export const NutritionProvider: React.FC<NutritionProviderProps> = ({ children }
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false); // <-- Add deletion state
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const fetchNutritionData = useCallback(async (date: string) => {
     setLoading(true);
     setError(null);
     setSubmitError(null); 
+    setDeleteError(null);
     try {
       const response = await fetch(`/api/Track/getTracks?date=${date}`);
       if (!response.ok) {
@@ -69,6 +72,7 @@ export const NutritionProvider: React.FC<NutritionProviderProps> = ({ children }
     }) => {
       setIsSubmitting(true);
       setSubmitError(null);
+      setDeleteError(null);
 
       try {
         const response = await fetch("/api/Track/chatTrack", {
@@ -171,6 +175,56 @@ export const NutritionProvider: React.FC<NutritionProviderProps> = ({ children }
     []
   );
 
+
+  const deleteNutritionEntry = useCallback(async (entryId: string) => {
+    setIsDeleting(true);
+    setDeleteError(null);
+    setSubmitError(null); 
+
+    const originalLogs = JSON.parse(JSON.stringify(nutritionLogs)); 
+
+    setNutritionLogs((prevLogs) =>
+      prevLogs.map(log => ({
+        ...log,
+        entries: log.entries.filter(entry => entry.id !== entryId),
+      })).filter(log => log.entries.length > 0 || log.date) 
+    );
+
+
+    try {
+      const response = await fetch("/api/Track/deleteTrack", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ entryId }),
+      });
+
+      if (!response.ok) {
+        let errorMsg = `Failed to delete entry (Status: ${response.status})`;
+        try {
+          const errorData = await response.json();
+          errorMsg = errorData.message || errorData.error || errorMsg;
+        } catch (_) {}
+
+        setNutritionLogs(originalLogs);
+        throw new Error(errorMsg);
+      }
+
+      console.log("Entry deleted successfully from server");
+
+
+    } catch (error) {
+      setNutritionLogs(originalLogs);
+
+      setDeleteError(
+        error instanceof Error ? error.message : "An unknown deletion error occurred"
+      );
+      console.error("Deletion failed:", error);
+    } finally {
+      setIsDeleting(false);
+    }
+  }, [nutritionLogs, selectedDate]); 
+
+
   const changeSelectedDate = useCallback((newDate: string) => {
     setSelectedDate(newDate);
   }, []);
@@ -185,6 +239,9 @@ export const NutritionProvider: React.FC<NutritionProviderProps> = ({ children }
     fetchNutritionData,
     addNutritionEntry,
     changeSelectedDate,
+    isDeleting,      
+    deleteError,  
+    deleteNutritionEntry,
   };
 
   return (
