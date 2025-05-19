@@ -1,17 +1,22 @@
 "use client";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
 import { useEffect, useState, useMemo } from "react";
 import StreakDisplay from "../Community/Streak";
 import { useNutrition } from "../../contexts/NutritionContext"; 
 import { useDashboard } from "../../contexts/DashboardContext";
 import NutrientCard from "./NutritionCard";
+import MotivationalQuote from "./MotivationlQuote";
 
 export default function DashboardComp() {
   const { data: session } = useSession();
-  const router = useRouter();
   const [isMobile, setIsMobile] = useState(false);
-  const { data: dashboardData, loading: dashboardLoading, error: dashboardError, refreshData: refreshDashboardData } = useDashboard();
+  const { 
+    data: dashboardData, 
+    loading: dashboardLoading, 
+    error: dashboardError, 
+    refreshData: refreshDashboardData, 
+  
+  } = useDashboard();
 
   const {
     nutritionLogs,
@@ -70,6 +75,7 @@ export default function DashboardComp() {
   };
 
 
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -111,6 +117,8 @@ export default function DashboardComp() {
             Showing data for: {new Date(selectedDate + 'T00:00:00Z').toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}
           </p>
         </div>
+
+       
 
         <div className="mb-6">
           <h2 className="text-lg md:text-xl text-center font-semibold text-gray-800 mb-4">
@@ -171,6 +179,10 @@ export default function DashboardComp() {
           </div>
         </div>
 
+        <div>
+          <MotivationalQuote />
+        </div>
+{/* 
         <div className="flex flex-col md:flex-row justify-center items-center gap-3 md:gap-4 mt-6">
           <button
             onClick={() => router.push("/reports")}
@@ -184,10 +196,10 @@ export default function DashboardComp() {
           >
             Refresh Data
           </button>
-        </div>
+        </div> */}
       </div>
 
-      <p className="text-xs text-gray-600 mt-4">
+      <p className="text-xs text-gray-600 ">
         Vein AI - Track your nutrition and wellness journey
       </p>
 
@@ -197,5 +209,3 @@ export default function DashboardComp() {
     </div>
   );
 }
-
-

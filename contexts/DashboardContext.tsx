@@ -15,6 +15,9 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
     waterIntake: "",
     carbsIntake: "",
   });
+  const [motivationalQuote, setMotivationalQuote] = useState<string>("");
+  const [quoteLoading, setQuoteLoading] = useState<boolean>(false);
+  const [quoteError, setQuoteError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [lastFetchTime, setLastFetchTime] = useState<number>(0);
@@ -54,9 +57,28 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const fetchMotivationalQuote = async () => {
+    if (!session) return;
+
+    try {
+      setQuoteLoading(true);
+      setQuoteError(null);
+      const response = await axios.get("/api/dash-data/quote");
+      setMotivationalQuote(response.data.quote || "Stay motivated on your health journey!");
+    } catch (error) {
+      console.error("Error fetching motivational quote:", error);
+      setQuoteError("Failed to fetch motivational quote");
+      // Set a default quote in case of error
+      setMotivationalQuote("Every small step counts towards your health goals. Keep going!");
+    } finally {
+      setQuoteLoading(false);
+    }
+  };
+
   // Initialize data on mount and when session changes
   useEffect(() => {
     fetchData();
+    fetchMotivationalQuote();
   }, [session]);
 
   return (
@@ -65,7 +87,11 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
         data, 
         loading, 
         error, 
-        refreshData: () => fetchData(true) // Force refresh when manually triggered
+        refreshData: () => fetchData(true), // Force refresh when manually triggered
+        motivationalQuote,
+        quoteLoading,
+        quoteError,
+        refreshQuote: fetchMotivationalQuote
       }}
     >
       {children}

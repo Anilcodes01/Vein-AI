@@ -84,7 +84,8 @@ export default function NutrientCard({
           <p className="text-xs text-gray-400 mt-2">No target set</p>
         )}
       </div>
-  
+      
+      {/* Enhanced water filling effect with improved waves */}
       <div 
         className={`absolute bottom-0 left-0 w-full overflow-hidden transition-all duration-1000 ease-out ${isTargetMet ? 'bg-green-100' : 'bg-blue-100'}`}
         style={{ 
@@ -92,16 +93,17 @@ export default function NutrientCard({
           opacity: progressPercentage > 0 ? 0.3 : 0,
         }}
       >
-
+        {/* Water base color with gradient */}
         <div 
           className="absolute inset-0"
           style={{
             background: actualTarget > 0
-              ? `linear-gradient(0deg, rgba(0, 100, 200, 0.4) 0%, rgba(0, 150, 255, 0.3) 100%)`
+              ? `linear-gradient(0deg, rgba(0, 100, 200, 0.4) 0%, rgba(0, 150, 255, 0.5) 100%)`
               : 'none',
           }}
         ></div>
-    
+        
+        {/* Primary wave animation */}
         <div 
           className="absolute -top-4 left-0 w-full h-8"
           style={{
@@ -110,7 +112,8 @@ export default function NutrientCard({
             animation: "waveAnimation 20s linear infinite",
           }}
         ></div>
-     
+        
+        {/* Secondary wave animation (slower, different direction) */}
         <div 
           className="absolute -top-4 left-0 w-full h-8"
           style={{
@@ -119,12 +122,14 @@ export default function NutrientCard({
             animation: "reverseWaveAnimation 15s linear infinite",
           }}
         ></div>
-  
+        
+        {/* Light reflection */}
         <div 
           className="absolute top-0 left-0 w-full h-4 bg-gradient-to-b from-white to-transparent"
           style={{ opacity: 0.2 }}
         ></div>
- 
+        
+        {/* Bubbles */}
         <div className="absolute inset-0 overflow-hidden">
           {Array.from({ length: 8 }).map((_, i) => (
             <div 
@@ -143,7 +148,7 @@ export default function NutrientCard({
         </div>
       </div>
       
-   
+      {/* CSS animations for waves and bubbles */}
       <style jsx>{`
         @keyframes waveAnimation {
           0% {
