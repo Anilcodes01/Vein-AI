@@ -1,49 +1,46 @@
 "use client";
 import { useState } from 'react';
-// AskAIComp is not used here, removed import
 import ChatSidebar from "@/components/AskAI/ChatSidebar";
-import Sidebar from "@/components/Landing/Sidebar"; // Main sidebar (left)
+import Sidebar from "@/components/Landing/Sidebar";
 import { Button } from "@/components/ui/button";
 import { ChevronsLeft, ChevronsRight } from "lucide-react";
 import clsx from 'clsx';
-import PreviousConv from '@/components/AskAI/PreviousConv'; // Main content for this page
+import PreviousConv from '@/components/AskAI/PreviousConv';
+import Appbar from '@/components/Landing/Appbar';
 
 export default function PreviousChat() {
     const [isChatSidebarOpen, setIsChatSidebarOpen] = useState(false);
 
     return (
         <div className="flex h-screen overflow-hidden bg-gray-100">
-            {/* Main Sidebar (Left) */}
-            {/* Assuming Sidebar component handles its own responsive behavior 
-                (e.g., hidden on mobile, fixed width on desktop) */}
-            <div className="hidden md:block"> {/* Example: Show only on md and up */}
+            <div className='top-0 fixed w-full'>
+                <Appbar />
+            </div>
+            <div className="hidden md:block">
                 <Sidebar />
             </div>
 
-            {/* Main Content Area */}
-            <div className="flex-1 flex flex-col overflow-hidden"> {/* Added flex flex-col for internal layout */}
+            <div className="flex flex-1 relative overflow-hidden">
                 <PreviousConv />
             </div>
 
-            {/* Chat Sidebar Toggle Button (Right) */}
             <Button
                 variant="outline"
                 size="icon"
-                className="fixed top-20 right-4 z-20 cursor-pointer bg-white hover:bg-gray-50 rounded-full shadow md:absolute" // Use fixed for mobile, absolute for consistency with sidebar positioning context on desktop
+                className="fixed top-20 right-4 z-20 cursor-pointer bg-white hover:bg-gray-50 rounded-full shadow md:absolute"
                 onClick={() => setIsChatSidebarOpen(!isChatSidebarOpen)}
                 aria-label={isChatSidebarOpen ? "Close chat sidebar" : "Open chat sidebar"}
             >
                 {isChatSidebarOpen ? <ChevronsRight className="h-5 w-5" /> : <ChevronsLeft className="h-5 w-5" />}
             </Button>
 
-            {/* Chat Sidebar (Right, slide-in) */}
             <div
                 className={clsx(
-                    "fixed md:absolute bg-white right-0 top-0 md:top-16", // Full height on mobile, specific top on md+
-                    "w-full sm:w-72 md:w-72", // Full width on smallest, then 72
-                    "h-full md:h-[calc(100vh-4rem)]", // Full height on mobile
+                    "fixed md:absolute bg-white right-0 top-0 md:top-16",
+                    "w-full sm:w-72 md:w-72",
+                    "h-full md:h-[calc(100vh-4rem)]",
                     "shadow-lg",
-                    "z-10", // Ensure it's above content but below its own toggle button if needed
+                    "z-10",
                     "transition-transform duration-300 ease-in-out",
                     {
                         'translate-x-0': isChatSidebarOpen,
@@ -52,7 +49,6 @@ export default function PreviousChat() {
                 )}
             >
                 <div className="h-full w-full overflow-y-auto">
-                    {/* Button to close sidebar on mobile, inside the sidebar */}
                     <div className="md:hidden p-2 text-right">
                         <Button
                             variant="ghost"

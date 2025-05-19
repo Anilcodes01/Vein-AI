@@ -10,10 +10,6 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import Image from "next/image";
 
-// Ensure this CSS utility is defined, e.g., in your globals.css
-// .hide-scrollbar::-webkit-scrollbar { display: none; }
-// .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-
 export default function AskAIComp() {
   const [input, setInput] = useState("");
   const chat = useSelector((state: RootState) => state.chat.chat);
@@ -27,7 +23,7 @@ export default function AskAIComp() {
   }, [chat, loading]);
 
   const messageVariants = {
-    hidden: { opacity: 0, y: 10 }, // slightly less y
+    hidden: { opacity: 0, y: 10 },
     visible: { opacity: 1, y: 0 },
   };
 
@@ -72,20 +68,18 @@ export default function AskAIComp() {
   }
 
   return (
-    // Main container: md:ml-44 for desktop sidebar. This means on <md, it uses full width.
-    <div className="flex flex-col h-full bg-gradient-to-br from-[#FFDEE9] to-[#B5FFFC] overflow-hidden md:ml-44"> {/* Keep md:ml-44 if your Sidebar setup requires it */}
-      {/* Chat Area: Takes remaining space, scrolls. */}
-      <div className="flex-1 overflow-y-auto p-3 sm:p-4 mt-4 sm:mt-6 md:mt-8 hide-scrollbar w-full">
-        <div className="max-w-full px-1 sm:px-0 sm:max-w-3xl mx-auto w-full"> {/* Allow full width on smallest screens, then max-w-3xl */}
+    <div className="flex flex-col  bg-gradient-to-br from-[#FFDEE9] to-[#B5FFFC] w-full mt-16 md:pl-44"> 
+      <div className="flex-1 overflow-y-auto p-3 sm:p-4 mt-4 sm:mt-6  hide-scrollbar w-full">
+        <div className="max-w-full px-1 sm:px-0 sm:max-w-3xl mx-auto w-full"> 
           {chat.length === 0 && !loading && (
-            <div className="flex flex-col items-center justify-center h-full text-center p-4">
-              <div className="bg-green-100/50 p-2 rounded-full mb-3 sm:mb-4">
+            <div className="flex flex-col items-center  justify-center  text-center p-4">
+              <div className="bg-green-100/50 p-2 mt-44 rounded-full mb-3 sm:mb-4">
                 <Image
                   src="/logot.png"
                   alt="logo"
-                  width={64} // Base size for mobile (w-16)
-                  height={64} // Base size for mobile (h-16)
-                  className="h-16 w-16 sm:h-20 sm:w-20" // sm breakpoint increases size
+                  width={64} 
+                  height={64}
+                  className="h-16 w-16  sm:h-20 sm:w-20" 
                 />
               </div>
               <h2 className="text-base sm:text-lg md:text-2xl font-semibold text-gray-700 mb-1 sm:mb-2">
@@ -98,7 +92,7 @@ export default function AskAIComp() {
             </div>
           )}
 
-          <div className="space-y-3 sm:space-y-4">
+          <div className="space-y-3  sm:space-y-4">
             {chat.map((msg, index) => (
               <motion.div
                 key={index}
@@ -111,16 +105,16 @@ export default function AskAIComp() {
                 }`}
               >
                 <div
-                  className={`rounded-xl sm:rounded-2xl px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm md:text-base shadow-sm break-words ${
+                  className={`rounded-xl sm:rounded-2xl px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm md:text-base  break-words ${
                     msg.role === "user"
-                      ? "bg-white text-black max-w-[85%] sm:max-w-[80%] md:max-w-[70%]" // Slightly more width on mobile
-                      : "bg-white/80 backdrop-blur-sm text-black max-w-[95%] sm:max-w-[90%] md:max-w-[85%] markdown-container"
+                      ? "bg-white text-black max-w-[85%] sm:max-w-[80%] md:max-w-[70%]" 
+                      : " text-black max-w-[95%] sm:max-w-[90%] md:max-w-[85%] markdown-container"
                   }`}
                 >
                   {typeof msg.content === "string" ? (
                     msg.role === "user" ? (
                        msg.content.split("\n").map((line, i) => (
-                        <p key={i} className="mb-0 leading-relaxed"> {/* Removed break-words from here, parent has it */}
+                        <p key={i} className="mb-0 leading-relaxed"> 
                           {line || "\u00A0"}
                         </p>
                       ))
@@ -179,7 +173,7 @@ export default function AskAIComp() {
               className="flex justify-start mt-3 sm:mt-4"
             >
               <div className="bg-white/80 backdrop-blur-sm text-gray-800 rounded-lg sm:rounded-xl rounded-bl-none px-3 py-2 sm:px-4 sm:py-3 max-w-[90%] sm:max-w-[85%] shadow-sm">
-                <div className="flex space-x-1 sm:space-x-1.5"> {/* Slightly smaller dots and spacing for mobile */}
+                <div className="flex space-x-1 sm:space-x-1.5"> 
                   <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce"></div>
                   <div
                     className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce"
@@ -197,12 +191,11 @@ export default function AskAIComp() {
         </div>
       </div>
 
-      {/* Input Area: Fixed at bottom */}
       <div className="p-2 sm:p-3 md:p-4 border-t border-white/20 bg-transparent">
-        <div className="max-w-full sm:max-w-3xl mx-auto"> {/* Allow full width on smallest screens */}
+        <div className="max-w-full sm:max-w-3xl mx-auto"> 
           <form
             onSubmit={handleSubmit}
-            className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 w-full" // items-stretch for mobile
+            className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 w-full"
           >
             <input
               type="text"

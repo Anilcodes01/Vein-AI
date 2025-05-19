@@ -75,48 +75,41 @@ const StreakDisplay: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center w-64 h-20 mx-auto my-4 bg-gray-50 rounded-full shadow-md animate-pulse">
-        <p className="text-gray-500">Loading streak...</p>
+      <div className="flex items-center justify-center w-full min-w-[16rem] h-20 bg-gray-50/50 dark:bg-gray-700/50 rounded-xl shadow-md animate-pulse">
+        <p className="text-gray-500 dark:text-gray-300">Loading streak...</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="flex items-center justify-center w-64 h-20 mx-auto my-4 bg-red-50 rounded-full shadow-md">
-        <p className="text-sm text-red-500">Error: {error}</p>
+      <div className="flex items-center justify-center w-full min-w-[16rem] h-20 bg-red-50/50 dark:bg-red-800/50 rounded-xl shadow-md">
+        <p className="text-sm text-red-600 dark:text-red-300 p-2 text-center">Error: {error}</p>
       </div>
     );
   }
 
   if (!streakData) {
     return (
-      <div className="flex items-center justify-center w-64 h-20 mx-auto my-4 bg-gray-50 rounded-full shadow-md">
-        <p className="text-gray-500">No streak data available.</p>
+      <div className="flex items-center justify-center w-full min-w-[16rem] h-20 bg-gray-50/50 dark:bg-gray-700/50 rounded-xl shadow-md">
+        <p className="text-gray-500 dark:text-gray-300">No streak data available.</p>
       </div>
     );
   }
 
   const bgGradient =
     isStreakActiveToday && streakData.current > 0
-      ? "bg-gradient-to-r from-blue-50 to-blue-100"
-      : "bg-gradient-to-r from-gray-50 to-gray-100";
+      ? "bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-800/30 dark:to-blue-700/30"
+      : "bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700/30 dark:to-gray-600/30";
 
   const fireColor =
     isStreakActiveToday && streakData.current > 0
       ? "text-amber-500"
-      : "text-gray-300";
-
-  const statusMessage =
-    isStreakActiveToday && streakData.current > 0
-      ? "Goal met for today!"
-      : streakData.current > 0
-      ? "Keep the streak going today!"
-      : "Start your streak today!";
+      : "text-gray-400 dark:text-gray-500";
 
   return (
     <div
-      className={`w-auto px-4 py-2 mx-auto my-4 ${bgGradient} rounded-full shadow-md transition-all hover:bg-gradient-to-br from-[#FFDEE9] to-[#B5FFFC] duration-300 hover:shadow-lg`}
+      className={`w-full px-4 py-3 ${bgGradient} rounded-xl shadow-md transition-all hover:shadow-lg duration-300`}
     >
       <div className="flex items-center justify-center gap-3">
         <FaFire
@@ -130,7 +123,7 @@ const StreakDisplay: React.FC = () => {
               : "Streak Inactive Today"
           }
         />
-        <span className="text-xl text-gray-800">
+        <span className="text-xl text-gray-800 dark:text-gray-200">
           {streakData.current} Day{streakData.current !== 1 ? "s" : ""}
         </span>
       </div>

@@ -1,11 +1,9 @@
-
-
 "use client";
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Loader2, AlertCircle, Flame, UserCircle, Award, Users as UsersIcon } from 'lucide-react';
-import { CommunityUser } from '@/lib/types'; 
+import { CommunityUser } from '@/lib/types';
 
 export default function Users() {
   const [users, setUsers] = useState<CommunityUser[]>([]);
@@ -25,7 +23,6 @@ export default function Users() {
             const errorData = await response.json();
             errorMsg = errorData.message || errorMsg;
           } catch (_) {
-            // Ignore if response body isn't JSON
           }
           throw new Error(errorMsg);
         }
@@ -36,7 +33,7 @@ export default function Users() {
           throw new Error("Invalid data format received from server.");
         }
 
-        console.log("Users data received:", data.users); // Debug log
+        console.log("Users data received:", data.users); 
         setUsers(data.users);
       } catch (err) {
         setError(err instanceof Error ? err.message : "An unknown error occurred");
@@ -49,30 +46,22 @@ export default function Users() {
     fetchUsers();
   }, []);
 
-  // Helper function to get streak current value safely
   const getCurrentStreak = (user: any): number => {
-    // If streak is an array and has at least one element with current property
     if (Array.isArray(user.streak) && user.streak.length > 0 && user.streak[0]?.current !== undefined) {
       return user.streak[0].current;
     }
-    // If streak is an object with current property
     else if (typeof user.streak === 'object' && !Array.isArray(user.streak) && user.streak?.current !== undefined) {
       return user.streak.current;
     }
-    // If streak is a number
     else if (typeof user.streak === 'number') {
       return user.streak;
     }
-    // Default case
     return 0;
   };
 
-  // Helper function to check if user has a streak
   const hasStreak = (user: any): boolean => {
     return Array.isArray(user.streak) ? user.streak.length > 0 : user.streak !== undefined && user.streak !== null;
   };
-
-  // --- Render Logic ---
 
   if (loading) {
     return (
@@ -106,8 +95,9 @@ export default function Users() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex flex-col w-full min-h-screen  items-center gap-3">
+
+    <div className="w-full">
+      <div className="flex flex-col w-full items-center gap-3">
         {users.map((user) => {
           const currentStreak = getCurrentStreak(user);
           
@@ -116,7 +106,6 @@ export default function Users() {
               key={user.id}
               className="flex w-full max-w-sm items-center bg-white dark:bg-gray-800 rounded-2xl px-3 py-2 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md hover:border-blue-300 dark:hover:border-blue-600 transition-all duration-200"
             >
-              {/* Avatar Section */}
               <div className="relative w-8 h-8 flex-shrink-0">
                 {user.image ? (
                   <Image
@@ -133,24 +122,20 @@ export default function Users() {
                 )}
               </div>
 
-              {/* Username Section */}
               <div className="ml-3 flex-grow min-w-0 mr-2">
                 <span className="font-medium text-sm text-gray-900 dark:text-gray-100 truncate block">
                   {user.username || user.name || 'User'}
                 </span>
               </div>
 
-              {/* Streak Section - Fixed to handle array structure */}
               {hasStreak(user) && (
                 <div className="ml-auto flex items-center text-xs flex-shrink-0">
-                  {/* Award Icon - Show for streaks > 10 */}
                   {currentStreak > 10 && (
                     <div className="mr-1.5">
                       <Award className="w-4 h-4 text-yellow-500" />
                     </div>
                   )}
                   
-                  {/* Always show streak value, even if 0 */}
                   <div className={`flex items-center ${
                     currentStreak > 0
                       ? "bg-gradient-to-r from-amber-400 to-orange-500 text-white"

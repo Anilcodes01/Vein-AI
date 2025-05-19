@@ -9,10 +9,6 @@ import { toast, Toaster } from "sonner";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
-// Ensure .hide-scrollbar is defined in globals.css if used
-// .hide-scrollbar::-webkit-scrollbar { display: none; }
-// .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-
 export default function PreviousConv() {
   const [input, setInput] = useState("");
   const [chat, setChat] = useState<ChatMessage[]>([]);
@@ -65,7 +61,7 @@ export default function PreviousConv() {
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [chat, isSending]); // Added isSending to scroll after optimistic update
+  }, [chat, isSending]); 
 
   const handleSendMessage = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -122,15 +118,15 @@ export default function PreviousConv() {
 
   return (
     // Main container: md:ml-44 for desktop sidebar.
-    <div className="flex flex-col h-full bg-gradient-to-br from-[#FFDEE9] to-[#B5FFFC] overflow-hidden md:ml-44">
+    <div className="flex flex-col  bg-gradient-to-br from-[#FFDEE9] to-[#B5FFFC] w-full mt-16 md:pl-44">
       <Toaster position="top-right" richColors />
       {/* Removed empty h1 div */}
       {/* Chat Area */}
-      <div className="flex-1 overflow-y-auto p-3 sm:p-4 mt-4 sm:mt-6 md:mt-8 hide-scrollbar w-full">
+      <div className="flex-1 overflow-y-auto p-3 sm:p-2 mt-4 sm:mt-6 md:mt-8 hide-scrollbar w-full">
         <div className="max-w-full px-1 sm:px-0 sm:max-w-3xl mx-auto w-full"> {/* Consistent with AskAIComp */}
           {loading && chat.length === 0 && (
             <div className="flex justify-center items-center h-full">
-              <BeatLoader color="#E56AB3" size={12} /> {/* Slightly smaller loader */}
+              <BeatLoader color="#E56AB3" size={12} className="mt-64"/> {/* Slightly smaller loader */}
             </div>
           )}
 
@@ -154,10 +150,10 @@ export default function PreviousConv() {
                   }`}
                 >
                   <div
-                     className={`rounded-xl sm:rounded-2xl px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm md:text-base shadow-sm break-words ${
+                     className={`rounded-xl sm:rounded-2xl px-3 py-2 sm:px-2 sm:py-2.5 text-xs sm:text-sm md:text-base break-words ${
                         msg.role === "user"
                           ? "bg-white text-black max-w-[85%] sm:max-w-[80%] md:max-w-[70%]"
-                          : "bg-white/80 backdrop-blur-sm text-black max-w-[95%] sm:max-w-[90%] md:max-w-[85%] markdown-container" // Added backdrop for assistant
+                          : " text-black max-w-[95%] sm:max-w-[90%] md:max-w-[85%] markdown-container" // Added backdrop for assistant
                       }`}
                   >
                     {typeof msg.content === "string" ? (

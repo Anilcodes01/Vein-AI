@@ -6,10 +6,17 @@ import Providers from "./providers";
 import Appbar from "../components/Landing/Appbar";
 import { DashboardProvider } from "@/contexts/DashboardContext";
 import { NutritionProvider } from '@/contexts/NutritionContext';
+import { Nunito } from "next/font/google";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
+});
+
+const nunito = Nunito({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"], 
+  variable: "--font-nunito", 
 });
 
 const geistMono = Geist_Mono({
@@ -36,15 +43,13 @@ export default function RootLayout({
         <link rel="icon" href="/logot.png" type="image/png" />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} overflow-y-auto hide-scrollbar antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${nunito.variable} overflow-y-auto hide-scrollbar antialiased`}
       >
         <Providers>
-          <div className="fixed top-0 w-full z-50">
-            <Appbar />
-          </div>
+      
           <DashboardProvider>
           <NutritionProvider>
-          <main className="pt-16"> 
+          <main className=""> 
               {children}
             </main>
           </NutritionProvider>

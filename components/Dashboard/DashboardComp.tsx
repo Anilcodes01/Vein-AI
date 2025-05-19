@@ -1,21 +1,19 @@
 "use client";
 import { useSession } from "next-auth/react";
 import { useEffect, useState, useMemo } from "react";
-import StreakDisplay from "../Community/Streak";
-import { useNutrition } from "../../contexts/NutritionContext"; 
+import { useNutrition } from "../../contexts/NutritionContext";
 import { useDashboard } from "../../contexts/DashboardContext";
 import NutrientCard from "./NutritionCard";
 import MotivationalQuote from "./MotivationlQuote";
 
 export default function DashboardComp() {
   const { data: session } = useSession();
-  const [isMobile, setIsMobile] = useState(false);
-  const { 
-    data: dashboardData, 
-    loading: dashboardLoading, 
-    error: dashboardError, 
-    refreshData: refreshDashboardData, 
   
+  const {
+    data: dashboardData,
+    loading: dashboardLoading,
+    error: dashboardError,
+    refreshData: refreshDashboardData,
   } = useDashboard();
 
   const {
@@ -27,9 +25,7 @@ export default function DashboardComp() {
   } = useNutrition();
 
   useEffect(() => {
-    const checkScreenSize = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
+    const checkScreenSize = () => {};
     checkScreenSize();
     window.addEventListener('resize', checkScreenSize);
     return () => window.removeEventListener('resize', checkScreenSize);
@@ -61,24 +57,22 @@ export default function DashboardComp() {
       return { calories: 0, protein: 0, water: 0, carbs: 0, fat: 0 };
     }
     return {
-      calories: dashboardData.calorieIntake || 0, 
-      protein: dashboardData.proteinIntake || 0, 
-      water: dashboardData.waterIntake || 0,     
-      carbs: dashboardData.carbsIntake || 0,     
-      fat: dashboardData.fatIntake || 0,       
+      calories: dashboardData.calorieIntake || 0,
+      protein: dashboardData.proteinIntake || 0,
+      water: dashboardData.waterIntake || 0,
+      carbs: dashboardData.carbsIntake || 0,
+      fat: dashboardData.fatIntake || 0,
     };
   }, [dashboardData]);
-  
+
   const handleRefreshAllData = () => {
-    refreshDashboardData(); 
-    fetchNutritionData(selectedDate); 
+    refreshDashboardData();
+    fetchNutritionData(selectedDate);
   };
-
-
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex items-center justify-center min-h-screen w-full">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
       </div>
     );
@@ -86,7 +80,7 @@ export default function DashboardComp() {
 
   if (combinedError) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex items-center justify-center min-h-screen w-full">
         <div className="text-red-500 text-center p-4">
             <p>Error loading data: {combinedError}</p>
             <button
@@ -101,10 +95,10 @@ export default function DashboardComp() {
   }
 
   return (
-    <div className="flex flex-col bg-gradient-to-br from-[#FFDEE9] to-[#B5FFFC] md:pl-64 md:pt-0 items-center pt-12 md:justify-center min-h-screen md:p-6">
-      <div className="max-w-4xl w-full rounded-2xl p-4 md:p-8">
+    <main className="relative flex-1 h-full overflow-y-auto bg-gradient-to-br from-[#FFDEE9] to-[#B5FFFC] md:pl-64 flex flex-col items-center">
+      <div className="max-w-4xl w-full rounded-2xl p-4 md:p-8 pt-6 pb-6">
         <div className="flex flex-col items-center justify-center mb-6 md:mb-8">
-          <div className="flex gap-2 md:gap-4">
+          <div className="flex lg:mt-16 gap-2 md:gap-4">
             <h1 className="text-2xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600 mb-2">
               Hello, {session?.user.name}
             </h1>
@@ -118,13 +112,10 @@ export default function DashboardComp() {
           </p>
         </div>
 
-       
-
         <div className="mb-6">
           <h2 className="text-lg md:text-xl text-center font-semibold text-gray-800 mb-4">
             Today's Nutrition Overview
           </h2>
-
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4">
             <NutrientCard
               label="Calories"
@@ -179,33 +170,17 @@ export default function DashboardComp() {
           </div>
         </div>
 
-        <div>
+        <div className="mb-6">
           <MotivationalQuote />
         </div>
-{/* 
-        <div className="flex flex-col md:flex-row justify-center items-center gap-3 md:gap-4 mt-6">
-          <button
-            onClick={() => router.push("/reports")}
-            className="w-full md:w-auto px-4 md:px-6 cursor-pointer py-2 bg-gradient-to-r from-purple-500 to-blue-500 text-white font-medium rounded-full hover:shadow-lg transition-shadow duration-300"
-          >
-            View Detailed Report
-          </button>
-          <button
-            onClick={handleRefreshAllData}
-            className="w-full md:w-auto px-4 md:px-6 cursor-pointer py-2 bg-gradient-to-r from-gray-500 to-gray-700 text-white font-medium rounded-full hover:shadow-lg transition-shadow duration-300"
-          >
-            Refresh Data
-          </button>
-        </div> */}
       </div>
 
-      <p className="text-xs text-gray-600 ">
+      <p className="text-xs text-gray-600 text-center py-4">
         Vein AI - Track your nutrition and wellness journey
       </p>
 
-      <div className="absolute top-4 md:top-0 right-4 md:right-8 mt-16">
-        <StreakDisplay />
+      <div className="absolute top-4 md:top-8 right-4 md:right-8">
       </div>
-    </div>
+    </main>
   );
 }

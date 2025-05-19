@@ -44,7 +44,7 @@ export default function ChatSidebar() {
 
   return (
     // py-2 px-2 applied to give some internal padding from edges of sidebar
-    <div className="flex flex-col py-2 px-2 w-full h-full text-black"> {/* Removed bg- as it's set by parent */}
+    <div className="flex absolute flex-col py-2 px-2 w-full h-full text-black"> {/* Removed bg- as it's set by parent */}
       <div className="border rounded-lg h-fit flex items-center w-full justify-start mb-3 p-1.5 sm:p-2 bg-white">
         <Image
           src="/logot.png"
