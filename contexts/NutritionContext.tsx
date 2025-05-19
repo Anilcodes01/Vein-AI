@@ -23,7 +23,7 @@ export const NutritionProvider: React.FC<NutritionProviderProps> = ({ children }
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
-  const [isDeleting, setIsDeleting] = useState(false); // <-- Add deletion state
+  const [isDeleting, setIsDeleting] = useState(false); 
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const fetchNutritionData = useCallback(async (date: string) => {
@@ -60,7 +60,9 @@ export const NutritionProvider: React.FC<NutritionProviderProps> = ({ children }
   }, []);
 
   useEffect(() => {
-    fetchNutritionData(selectedDate);
+     if (selectedDate) {
+      fetchNutritionData(selectedDate);
+    }
   }, [selectedDate, fetchNutritionData]);
 
   const addNutritionEntry = useCallback(
@@ -174,22 +176,42 @@ export const NutritionProvider: React.FC<NutritionProviderProps> = ({ children }
     },
     []
   );
-
-
-  const deleteNutritionEntry = useCallback(async (entryId: string) => {
+ const deleteNutritionEntry = useCallback(async (entryId: string) => {
     setIsDeleting(true);
     setDeleteError(null);
-    setSubmitError(null); 
+    setSubmitError(null);
 
-    const originalLogs = JSON.parse(JSON.stringify(nutritionLogs)); 
+    const originalLogs = JSON.parse(JSON.stringify(nutritionLogs));
+    let logIdOfDeletedEntry: string | null = null;
+    let deletedEntryValues: Partial<NutritionEntry> = { calories: 0, protein: 0, fat: 0, carbs: 0, waterMl: 0 };
 
-    setNutritionLogs((prevLogs) =>
-      prevLogs.map(log => ({
-        ...log,
-        entries: log.entries.filter(entry => entry.id !== entryId),
-      })).filter(log => log.entries.length > 0 || log.date) 
-    );
-
+    setNutritionLogs((prevLogs) => {
+      const newLogs = prevLogs.map(log => {
+        const entryToRemove = log.entries.find(e => e.id === entryId);
+        if (entryToRemove) {
+          logIdOfDeletedEntry = log.id;
+          deletedEntryValues = {
+            calories: entryToRemove.calories || 0,
+            protein: entryToRemove.protein || 0,
+            fat: entryToRemove.fat || 0,
+            carbs: entryToRemove.carbs || 0,
+            waterMl: entryToRemove.waterMl || 0,
+          };
+          return {
+            ...log,
+            entries: log.entries.filter(e => e.id !== entryId),
+            totalCalories: (log.totalCalories || 0) - (deletedEntryValues.calories || 0),
+            totalProtein: (log.totalProtein || 0) - (deletedEntryValues.protein || 0),
+            totalFat: (log.totalFat || 0) - (deletedEntryValues.fat || 0),
+            totalCarbs: (log.totalCarbs || 0) - (deletedEntryValues.carbs || 0),
+            totalWaterMl: (log.totalWaterMl || 0) - (deletedEntryValues.waterMl || 0),
+            updatedAt: new Date().toISOString(), 
+          };
+        }
+        return log;
+      });
+      return newLogs;
+    });
 
     try {
       const response = await fetch("/api/Track/deleteTrack", {
@@ -204,17 +226,42 @@ export const NutritionProvider: React.FC<NutritionProviderProps> = ({ children }
           const errorData = await response.json();
           errorMsg = errorData.message || errorData.error || errorMsg;
         } catch (_) {}
-
-        setNutritionLogs(originalLogs);
+        setNutritionLogs(originalLogs); 
         throw new Error(errorMsg);
       }
 
-      console.log("Entry deleted successfully from server");
+      const result = await response.json();
+      const updatedLogFromServer = result.updatedLog as NutritionLog;
 
+      if (updatedLogFromServer && updatedLogFromServer.id) {
+        setNutritionLogs((prevLogs) => {
+          const logIndex = prevLogs.findIndex(l => l.id === updatedLogFromServer.id);
+          if (logIndex > -1) {
+            const newLogsState = [...prevLogs];
+            newLogsState[logIndex] = {
+                ...updatedLogFromServer,
+                entries: (updatedLogFromServer.entries || []).sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime())
+            };
+            return newLogsState;
+          } else if (logIdOfDeletedEntry) {
+            fetchNutritionData(selectedDate);
+            return prevLogs; 
+          }
+          return prevLogs;
+        });
+      } else {
+        console.warn("Server did not return an updated log, or log was deleted. Consider re-fetching if totals seem off.");
+        if (logIdOfDeletedEntry) {
+            const logToCheck = nutritionLogs.find(l => l.id === logIdOfDeletedEntry);
+            if (logToCheck && logToCheck.entries.length === 0) {
+                fetchNutritionData(selectedDate);
+            }
+        }
+      }
+      console.log("Entry deleted successfully from server and local state updated.");
 
     } catch (error) {
       setNutritionLogs(originalLogs);
-
       setDeleteError(
         error instanceof Error ? error.message : "An unknown deletion error occurred"
       );
@@ -222,8 +269,7 @@ export const NutritionProvider: React.FC<NutritionProviderProps> = ({ children }
     } finally {
       setIsDeleting(false);
     }
-  }, [nutritionLogs, selectedDate]); 
-
+  }, [nutritionLogs, selectedDate, fetchNutritionData]);
 
   const changeSelectedDate = useCallback((newDate: string) => {
     setSelectedDate(newDate);
