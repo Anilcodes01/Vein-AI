@@ -48,7 +48,20 @@ async function generateGeminiResponse({
   try {
     initChat();
 
+    // Get current time in user's timezone
+    const userTimezone = userDetails?.timezone || 'Asia/Kolkata';
+    const now = new Date();
+    const currentTime = format(now, 'h:mm a', { timeZone: userTimezone });
+    const currentDate = format(now, 'MMMM d, yyyy', { timeZone: userTimezone });
+    const timeOfDay = format(now, 'BBBB', { timeZone: userTimezone }); // "in the morning", "in the afternoon", etc.
+
     const context = `
+
+     Current time context:
+  - Current time: ${currentTime} (${userTimezone})
+  - Current date: ${currentDate}
+  - Time of day: ${timeOfDay}
+
   User details:
   - Name: ${name}
   - Age: ${userDetails?.age || "not provided"}
