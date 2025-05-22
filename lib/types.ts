@@ -105,3 +105,20 @@ export interface CommunityUser {
   // --- End Update ---
   image: string | null;
 }
+
+
+
+export interface FormData {
+  name: string;
+  age: string;
+  identity: string;
+  maingoal: string;
+  height: string;
+  weight: string;
+  activityLevel: string;
+  preferredWorkouts: string;
+  dietaryApproach: string;
+  averageSleep: string;
+  biggestChallenge: string;
+  fitnessSuperpower: string;
+}

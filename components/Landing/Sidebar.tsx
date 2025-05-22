@@ -24,6 +24,7 @@ interface NavItem {
   name: string;
   href: string;
   icon: React.ElementType;
+
 }
 
 const navItems: NavItem[] = [
@@ -68,7 +69,17 @@ export default function Sidebar() {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
-  const NavItem = ({ item, isActive, isMobile = false }: { item: NavItem; isActive: boolean; isMobile?: boolean }) => (
+  const NavItem = ({
+    item,
+    isActive,
+    isMobile = false,
+    className = "",
+  }: {
+    item: NavItem;
+    isActive: boolean;
+    isMobile?: boolean;
+    className?: string;
+  }) => (
     <Link
       href={item.href}
       className={`
@@ -79,6 +90,7 @@ export default function Sidebar() {
             ? "bg-pink-200 text-gray-800"
             : "text-gray-600 hover:bg-white/60 hover:text-gray-800"
         }
+        ${className}
       `}
       title={item.name}
       onClick={() => isMobile && setIsMobileMenuOpen(false)}
@@ -150,69 +162,93 @@ export default function Sidebar() {
     </aside>
   );
 
-  const MobileNavigation = () => (
+   const MobileNavigation = () => (
     <>
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md border-t border-white/40 z-40">
-        <div className="grid grid-cols-5 px-2 py-1">
+      {/* Bottom Navigation Bar */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/20 dark:bg-gray-900/95 backdrop-blur-lg dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 z-50 shadow-lg">
+        <div className="grid grid-cols-5 h-16">
           {navItems.slice(0, 5).map((item) => {
-            const isActive =
-              pathname === item.href ||
-              (item.href !== "/" && pathname.startsWith(item.href));
+            const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
             return (
-              <NavItem 
-                key={item.name} 
-                item={item} 
-                isActive={isActive} 
-                isMobile={true}
-              />
+              <div key={item.name} className="flex items-center justify-center">
+                <NavItem
+                  item={item}
+                  isActive={isActive}
+                  isMobile={true}
+                  className={`
+                    ${isActive ? "text-blue-600 dark:text-blue-400" : "text-gray-500 dark:text-gray-400"}
+                    hover:text-blue-600 dark:hover:text-blue-400
+                  `}
+                />
+              </div>
             );
           })}
         </div>
       </nav>
 
-      <button
+      {/* Profile Button Floating Action Button */}
+      {/* <button
         onClick={toggleMobileMenu}
-        className="md:hidden fixed bottom-20 right-4 bg-pink-200 p-3 rounded-full shadow-lg z-50"
-        aria-label="Toggle mobile menu"
+        className="md:hidden fixed bottom-20 right-4 bg-blue-600 text-white p-4 rounded-full shadow-xl z-50 flex items-center justify-center"
+        aria-label="Open menu"
       >
         {isMobileMenuOpen ? (
-          <FaTimes className="h-5 w-5" />
+          <FaSignOutAlt className="h-5 w-5" />
         ) : (
-          <FaBars className="h-5 w-5" />
+          <FaUserCircle className="h-5 w-5" />
         )}
-      </button>
+      </button> */}
 
+      {/* Expanded Mobile Menu */}
       {isMobileMenuOpen && (
-        <div className="md:hidden fixed inset-0 bg-black/50 z-40 flex items-end justify-center">
-          <div className="bg-white rounded-t-2xl w-full max-w-lg p-6 shadow-xl">
-            <div className="grid grid-cols-3 gap-6 mb-8">
+        <div className="md:hidden fixed inset-0 bg-black/50 z-40 flex items-end">
+          <div className="bg-white dark:bg-gray-900 rounded-t-3xl w-full p-6 shadow-2xl animate-slide-up">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Menu</h3>
+              <button 
+                onClick={toggleMobileMenu} 
+                className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800"
+              >
+                <FaTimes className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+              </button>
+            </div>
+            
+            <div className="grid grid-cols-4 gap-4 mb-6">
               {navItems.slice(5).map((item) => {
-                const isActive =
-                  pathname === item.href ||
-                  (item.href !== "/" && pathname.startsWith(item.href));
+                const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
                 return (
                   <NavItem 
                     key={item.name} 
                     item={item} 
                     isActive={isActive} 
                     isMobile={true}
+                    className={`
+                      py-2 rounded-lg
+                      ${isActive 
+                        ? "bg-blue-100/50 dark:bg-blue-900/50" 
+                        : "hover:bg-gray-100/50 dark:hover:bg-gray-800/50"}
+                    `}
                   />
                 );
               })}
             </div>
-            <div className="border-t border-gray-200 pt-4">
-              <h3 className="text-sm font-medium text-gray-500 mb-4">Settings</h3>
-              <div className="grid grid-cols-3 gap-6">
+            
+            <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+              <div className="grid grid-cols-3 gap-4">
                 {footerNavItems.map((item) => {
-                  const isActive =
-                    pathname === item.href ||
-                    (item.href !== "/" && pathname.startsWith(item.href));
+                  const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
                   return (
                     <NavItem 
                       key={item.name} 
                       item={item} 
                       isActive={isActive} 
                       isMobile={true}
+                      className={`
+                        py-2 rounded-lg
+                        ${isActive 
+                          ? "bg-blue-100/50 dark:bg-blue-900/50" 
+                          : "hover:bg-gray-100/50 dark:hover:bg-gray-800/50"}
+                      `}
                     />
                   );
                 })}

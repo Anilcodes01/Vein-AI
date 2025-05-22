@@ -5,21 +5,7 @@ import axios from "axios";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState, ChangeEvent } from "react";
-
-interface FormData {
-  name: string;
-  age: string;
-  identity: string;
-  maingoal: string;
-  height: string;
-  weight: string;
-  activityLevel: string;
-  preferredWorkouts: string;
-  dietaryApproach: string;
-  averageSleep: string;
-  biggestChallenge: string;
-  fitnessSuperpower: string;
-}
+import { FormData } from "@/lib/types";
 
 export default function Test() {
   const [formData, setFormData] = useState<FormData>({

@@ -104,18 +104,16 @@ export default function DashboardComp() {
             </h1>
             <h1 className="text-2xl md:text-4xl font-bold mb-2">👋</h1>
           </div>
-          <p className="text-base md:text-lg text-gray-700 font-medium text-center">
-            Welcome to Vein AI, your personal health and wellness assistant
-          </p>
+         <p className="hidden md:block text-base md:text-lg text-gray-700 font-medium text-center">
+  Welcome to Vein AI, your personal health and wellness assistant
+</p>
            <p className="text-sm text-gray-600 mt-1">
             Showing data for: {new Date(selectedDate + 'T00:00:00Z').toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}
           </p>
         </div>
 
         <div className="mb-6">
-          <h2 className="text-lg md:text-xl text-center font-semibold text-gray-800 mb-4">
-            Today's Nutrition Overview
-          </h2>
+          
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4">
             <NutrientCard
               label="Calories"
@@ -170,9 +168,9 @@ export default function DashboardComp() {
           </div>
         </div>
 
-        <div className="mb-6">
+        {/* <div className="mb-6">
           <MotivationalQuote />
-        </div>
+        </div> */}
       </div>
 
       <p className="text-xs text-gray-600 text-center py-4">

@@ -23,7 +23,7 @@ export default function Appbar() {
     }, [status, session]);
 
     return (
-        <div className={`flex h-16 bg-white w-full items-center justify-between border-b border-gray-100 px-12 transition-all duration-500 ${
+        <div className={`flex h-16 bg-white w-full items-center justify-between border-b border-gray-100 lg:px-8 px-2 transition-all duration-500 ${
             animateNav ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'
         } sticky top-0 z-50 backdrop-blur-sm bg-white/90`}>
             <div onClick={() => router.push('/')} className="flex items-center gap-2 justify-center h-16 group cursor-pointer transition-transform duration-300 hover:scale-105">
