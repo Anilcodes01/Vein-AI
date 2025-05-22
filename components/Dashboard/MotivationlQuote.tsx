@@ -2,7 +2,7 @@ import { useDashboard } from "@/contexts/DashboardContext";
 
 export default function MotivationalQuote() {
   const {
-    motivationalQuote,
+    // motivationalQuote,
     quoteLoading,
     quoteError,
     
@@ -26,9 +26,9 @@ export default function MotivationalQuote() {
         ) : (
           <div className="relative">
             <div className="absolute -left-2 -top-2 text-green-200 text-4xl font-serif">"</div>
-            <p className="text-lg text-center font-medium text-gray-800 px-6 py-2">
+            {/* <p className="text-lg text-center font-medium text-gray-800 px-6 py-2">
               {motivationalQuote}
-            </p>
+            </p> */}
             <div className="absolute -bottom-2 -right-2 text-green-200 text-4xl font-serif">"</div>
           </div>
         )}
