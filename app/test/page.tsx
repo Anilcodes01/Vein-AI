@@ -1,5 +1,6 @@
 "use client";
 
+import Appbar from "@/components/Landing/Appbar";
 import axios from "axios";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -71,8 +72,11 @@ export default function Test() {
   };
 
   return (
-    <div className="flex items-center justify-center w-full min-h-screen  p-4">
-      <div className="w-full max-w-2xl bg-white rounded-lg shadow-md p-6">
+    <div className="flex flex-col items-center justify-center bg-gradient-to-br from-[#FFDEE9] to-[#B5FFFC] w-full min-h-screen  ">
+      <div className="w-full fixed top-0">
+        <Appbar />
+      </div>
+      <div className="w-full max-w-2xl mt-12 rounded-lg  p-6">
         <h1 className="text-2xl font-bold text-center mb-6">Fitness Profile Form</h1>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -84,7 +88,7 @@ export default function Test() {
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border"
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm outline-none p-2 border"
                 required
               />
             </div>
@@ -96,7 +100,7 @@ export default function Test() {
                 name="age"
                 value={formData.age}
                 onChange={handleChange}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border"
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm outline-none p-2 border"
                 required
               />
             </div>
@@ -107,7 +111,7 @@ export default function Test() {
                   name="identity"
                   value={formData.identity}
                   onChange={handleChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border"
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm outline-none p-2 border"
                   required
               >
                 <option value="">Select Identity</option>
@@ -124,7 +128,7 @@ export default function Test() {
                 name="maingoal"
                 value={formData.maingoal}
                 onChange={handleChange}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border"
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm outline-none p-2 border"
                 required
               />
             </div>
@@ -136,7 +140,7 @@ export default function Test() {
                 name="height"
                 value={formData.height}
                 onChange={handleChange}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border"
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm outline-none p-2 border"
                 required
               />
             </div>
@@ -148,7 +152,7 @@ export default function Test() {
                 name="weight"
                 value={formData.weight}
                 onChange={handleChange}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border"
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm outline-none p-2 border"
                 required
               />
             </div>
@@ -159,7 +163,7 @@ export default function Test() {
                 name="activityLevel"
                 value={formData.activityLevel}
                 onChange={handleChange}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border"
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm outline-none p-2 border"
                 required
               >
                 <option value="">Select activity level</option>
@@ -177,7 +181,7 @@ export default function Test() {
                 name="preferredWorkouts"
                 value={formData.preferredWorkouts}
                 onChange={handleChange}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border"
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm outline-none p-2 border"
                 required
               />
             </div>
@@ -189,7 +193,7 @@ export default function Test() {
                 name="dietaryApproach"
                 value={formData.dietaryApproach}
                 onChange={handleChange}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border"
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm outline-none p-2 border"
                 required
               />
             </div>
@@ -200,7 +204,7 @@ export default function Test() {
                   name="averageSleep"
                   value={formData.averageSleep}
                   onChange={handleChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border"
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm outline-none p-2 border"
                   required
               >
                 <option value="">Select sleep duration</option>
@@ -217,7 +221,7 @@ export default function Test() {
                 name="biggestChallenge"
                 value={formData.biggestChallenge}
                 onChange={handleChange}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border"
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm outline-none p-2 border"
                 required
               />
             </div>
@@ -228,7 +232,7 @@ export default function Test() {
                   name="fitnessSuperpower"
                   value={formData.fitnessSuperpower}
                   onChange={handleChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border"
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm outline-none p-2 border"
                   required
               >
                 <option value="">Select your superpower</option>
