@@ -57,28 +57,28 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const fetchMotivationalQuote = async () => {
-    if (!session) return;
+  // const fetchMotivationalQuote = async () => {
+  //   if (!session) return;
 
-    try {
-      setQuoteLoading(true);
-      setQuoteError(null);
-      const response = await axios.get("/api/dash-data/quote");
-      setMotivationalQuote(response.data.quote || "Stay motivated on your health journey!");
-    } catch (error) {
-      console.error("Error fetching motivational quote:", error);
-      setQuoteError("Failed to fetch motivational quote");
-      // Set a default quote in case of error
-      setMotivationalQuote("Every small step counts towards your health goals. Keep going!");
-    } finally {
-      setQuoteLoading(false);
-    }
-  };
+  //   try {
+  //     setQuoteLoading(true);
+  //     setQuoteError(null);
+  //     const response = await axios.get("/api/dash-data/quote");
+  //     setMotivationalQuote(response.data.quote || "Stay motivated on your health journey!");
+  //   } catch (error) {
+  //     console.error("Error fetching motivational quote:", error);
+  //     setQuoteError("Failed to fetch motivational quote");
+  //     // Set a default quote in case of error
+  //     setMotivationalQuote("Every small step counts towards your health goals. Keep going!");
+  //   } finally {
+  //     setQuoteLoading(false);
+  //   }
+  // };
 
   // Initialize data on mount and when session changes
   useEffect(() => {
     fetchData();
-    fetchMotivationalQuote();
+    
   }, [session]);
 
   return (
@@ -88,10 +88,10 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
         loading, 
         error, 
         refreshData: () => fetchData(true), // Force refresh when manually triggered
-        motivationalQuote,
+        // motivationalQuote,
         quoteLoading,
         quoteError,
-        refreshQuote: fetchMotivationalQuote
+       
       }}
     >
       {children}

@@ -12,10 +12,10 @@ export type DashboardContextType = {
   loading: boolean;
   error: string | null;
   refreshData: () => Promise<void>;
-  motivationalQuote: string;
+  // motivationalQuote: string;
   quoteLoading: boolean;
   quoteError: string | null;
-  refreshQuote: () => Promise<void>
+  // refreshQuote: () => Promise<void>
 };
 export type DailyTotals = {
   calories: number;
