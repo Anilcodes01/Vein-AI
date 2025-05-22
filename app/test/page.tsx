@@ -2,6 +2,7 @@
 
 import axios from "axios";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { useState, ChangeEvent } from "react";
 
 interface FormData {
@@ -37,6 +38,7 @@ export default function Test() {
 
   const { data: session } = useSession();
   const userId = session?.user.id;
+  const router = useRouter();
 
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -61,20 +63,7 @@ export default function Test() {
 
       if (res.status === 200) {
         console.log("user data saved successfully");
-        setFormData({
-          name: "",
-          age: "",
-          identity: "",
-          maingoal: "",
-          height: "",
-          weight: "",
-          activityLevel: "",
-          preferredWorkouts: "",
-          dietaryApproach: "",
-          averageSleep: "",
-          biggestChallenge: "",
-          fitnessSuperpower: "",
-        });
+        router.push('/dashboard');
       }
     } catch (error: any) { 
       console.error("Error while submitting data...", error.response?.data || error.message);

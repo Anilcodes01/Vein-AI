@@ -42,7 +42,7 @@ export default function Register() {
           toast.success("Signed in successfully!", {
             position: "top-right",
           });
-          router.push("/dashboard");
+          router.push("/test");
         }
       } else {
         toast.error("Something went wrong. Please try again...!", {
