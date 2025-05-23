@@ -165,8 +165,8 @@ export default function Sidebar() {
    const MobileNavigation = () => (
     <>
       {/* Bottom Navigation Bar */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/20 dark:bg-gray-900/95 backdrop-blur-lg dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 z-50 shadow-lg">
-        <div className="grid grid-cols-5 h-16">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/20 dark:bg-gray-900/95 backdrop-blur-lg  border-t border-gray-200 dark:border-gray-700 z-50 shadow-lg">
+        <div className="grid grid-cols-5 py-1">
           {navItems.slice(0, 5).map((item) => {
             const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
             return (
