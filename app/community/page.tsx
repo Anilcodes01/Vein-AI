@@ -83,7 +83,7 @@ const PageContent = () => {
 
 export default function CommunityPage() {
   return (
-    <div className="flex flex-col bg-gradient-to-br from-[#FFDEE9] to-[#B5FFFC] dark:from-gray-800 dark:to-slate-900 min-h-screen">
+    <div className="flex flex-col bg-[#fcfbf8] dark:from-gray-800 dark:to-slate-900 min-h-screen">
       <div className="fixed top-0 left-0 right-0 z-50">
         <Appbar />
       </div>

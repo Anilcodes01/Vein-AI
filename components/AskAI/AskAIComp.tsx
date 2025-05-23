@@ -68,7 +68,7 @@ export default function AskAIComp() {
   }
 
   return (
-    <div className="flex flex-col  bg-gradient-to-br from-[#FFDEE9] to-[#B5FFFC] w-full mt-16 md:pl-44"> 
+    <div className="flex flex-col  bg-[#fcfbf8] w-full mt-16 md:pl-44"> 
       <div className="flex-1 overflow-y-auto p-3 sm:p-4 mt-4 sm:mt-6  hide-scrollbar w-full">
         <div className="max-w-full px-1 sm:px-0 sm:max-w-3xl mx-auto w-full"> 
           {chat.length === 0 && !loading && (
@@ -107,8 +107,8 @@ export default function AskAIComp() {
                 <div
                   className={`rounded-xl sm:rounded-2xl px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm md:text-base  break-words ${
                     msg.role === "user"
-                      ? "bg-white text-black max-w-[85%] sm:max-w-[80%] md:max-w-[70%]" 
-                      : " text-black max-w-[95%] sm:max-w-[90%] md:max-w-[85%] markdown-container"
+                      ? "bg-[#f4c753] text-black max-w-[85%] sm:max-w-[80%] md:max-w-[70%]" 
+                      : " bg-[#f4f0e7] text-black max-w-[95%] sm:max-w-[90%] md:max-w-[85%] markdown-container"
                   }`}
                 >
                   {typeof msg.content === "string" ? (

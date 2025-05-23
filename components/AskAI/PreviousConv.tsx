@@ -118,7 +118,7 @@ export default function PreviousConv() {
 
   return (
     // Main container: md:ml-44 for desktop sidebar.
-    <div className="flex flex-col  bg-gradient-to-br from-[#FFDEE9] to-[#B5FFFC] w-full mt-16 md:pl-44">
+    <div className="flex flex-col  bg-[#fcfbf8] w-full mt-16 md:pl-44">
       <Toaster position="top-right" richColors />
       {/* Removed empty h1 div */}
       {/* Chat Area */}
@@ -152,8 +152,8 @@ export default function PreviousConv() {
                   <div
                      className={`rounded-xl sm:rounded-2xl px-3 py-2 sm:px-2 sm:py-2.5 text-xs sm:text-sm md:text-base break-words ${
                         msg.role === "user"
-                          ? "bg-white text-black max-w-[85%] sm:max-w-[80%] md:max-w-[70%]"
-                          : " text-black max-w-[95%] sm:max-w-[90%] md:max-w-[85%] markdown-container" // Added backdrop for assistant
+                          ? "bg-[#f4c753] text-black max-w-[85%] sm:max-w-[80%] md:max-w-[70%]"
+                          : "bg-[#f4f0e7] text-black max-w-[95%] sm:max-w-[90%] md:max-w-[85%] markdown-container" // Added backdrop for assistant
                       }`}
                   >
                     {typeof msg.content === "string" ? (

@@ -39,7 +39,7 @@ export default function TrackComp() {
   };
 
   return (
-    <div className="flex flex-col w-full overflow-y-auto bg-gradient-to-br from-[#FFDEE9] to-[#B5FFFC] hide-scrollbar  min-h-screen p-4 sm:p-6 ">
+    <div className="flex flex-col w-full overflow-y-auto bg-[#fcfbf8] hide-scrollbar  min-h-screen p-4 sm:p-6 ">
       <div className="flex flex-col w-full max-w-4xl mx-auto">
         <TrackInput
           onSubmit={handleTrackSubmit}

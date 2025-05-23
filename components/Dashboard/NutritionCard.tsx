@@ -35,7 +35,7 @@ export default function NutrientCard({
   }
   
   return (
-    <div className="transform hover:scale-105 transition-transform duration-300 bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 flex flex-col justify-between h-48 relative">
+    <div className="transform hover:scale-105 transition-transform duration-300  rounded-xl shadow-md overflow-hidden border border-gray-100 flex flex-col justify-between h-48 relative">
       <div className={`bg-gradient-to-r ${gradientFrom} ${gradientTo} h-1`}></div>
       
       <div className="p-4 flex flex-col items-center h-full z-10 relative">

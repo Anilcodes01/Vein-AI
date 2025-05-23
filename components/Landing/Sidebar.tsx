@@ -87,7 +87,7 @@ export default function Sidebar() {
         ${isMobile ? "p-2 justify-center" : isCollapsed ? "justify-center p-3" : "p-3"}
         ${
           isActive
-            ? "bg-pink-200 text-gray-800"
+            ? "bg-[#f4f0e7] text-gray-800"
             : "text-gray-600 hover:bg-white/60 hover:text-gray-800"
         }
         ${className}
@@ -122,7 +122,7 @@ export default function Sidebar() {
       className={`
         fixed top-0 left-0 z-40 h-screen mt-16
         bg-white/30 backdrop-blur-md 
-        border-r border-white/40
+        border-r border-gray-100
         transition-all duration-300 ease-in-out
         hidden md:block
         ${isCollapsed ? "w-20" : "w-64"}

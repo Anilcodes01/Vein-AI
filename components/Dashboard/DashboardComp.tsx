@@ -95,11 +95,11 @@ export default function DashboardComp() {
   }
 
   return (
-    <main className="relative flex-1 h-full overflow-y-auto bg-gradient-to-br from-[#FFDEE9] to-[#B5FFFC] md:pl-64 flex flex-col items-center">
+    <main className="relative flex-1 h-full overflow-y-auto bg-[#fcfbf8] md:pl-64 flex flex-col items-center">
       <div className="max-w-4xl w-full rounded-2xl p-4 md:p-8 pt-6 pb-6">
         <div className="flex flex-col items-center justify-center mb-6 md:mb-8">
           <div className="flex lg:mt-16 gap-2 md:gap-4">
-            <h1 className="text-2xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600 mb-2">
+            <h1 className="text-2xl md:text-4xl font-bold bg-clip-text text-transparent bg-black mb-2">
               Hello, {session?.user.name}
             </h1>
             <h1 className="text-2xl md:text-4xl font-bold mb-2">👋</h1>

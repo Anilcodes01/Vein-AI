@@ -7,6 +7,7 @@ import Appbar from "../components/Landing/Appbar";
 import { DashboardProvider } from "@/contexts/DashboardContext";
 import { NutritionProvider } from '@/contexts/NutritionContext';
 import { Nunito } from "next/font/google";
+import { Lexend } from 'next/font/google';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -18,6 +19,12 @@ const nunito = Nunito({
   weight: ["400", "500", "600", "700"], 
   variable: "--font-nunito", 
 });
+
+const lexend = Lexend({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'], // You can customize this
+  variable: '--font-lexend',
+})
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
@@ -43,7 +50,7 @@ export default function RootLayout({
         <link rel="icon" href="/logot.png" type="image/png" />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${nunito.variable} overflow-y-auto hide-scrollbar antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${nunito.variable} ${lexend.variable} overflow-y-auto hide-scrollbar antialiased`}
       >
         <Providers>
       
