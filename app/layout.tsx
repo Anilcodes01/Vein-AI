@@ -8,6 +8,7 @@ import { DashboardProvider } from "@/contexts/DashboardContext";
 import { NutritionProvider } from '@/contexts/NutritionContext';
 import { Nunito } from "next/font/google";
 import { Lexend } from 'next/font/google';
+import { InsightsProvider } from '@/contexts/InsightsContext';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -56,9 +57,12 @@ export default function RootLayout({
       
           <DashboardProvider>
           <NutritionProvider>
-          <main className=""> 
+            <InsightsProvider>
+  <main className=""> 
               {children}
             </main>
+            </InsightsProvider>
+        
           </NutritionProvider>
            
           </DashboardProvider>
