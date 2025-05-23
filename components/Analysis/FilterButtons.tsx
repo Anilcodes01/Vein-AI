@@ -18,7 +18,7 @@ export default function FilterButtons() {
 
     return (
     <div className="flex  flex-col">
-        <div className="flex gap-10  lg:ml-12 border-b border-gray-100 mt-4 font-bold">
+        <div className="flex gap-10 text-sm lg:text-base lg:ml-12 border-b border-gray-100 mt-4 font-bold">
             <button
                 onClick={() => setViewMode("Overview")}
                 className={`${
@@ -51,7 +51,7 @@ export default function FilterButtons() {
             </button>
             </div>
 
-            <div className="flex justify-around lg:ml-16 p-1 rounded-2xl bg-[#f4f0e7] mt-4 font-bold">
+            <div className="flex justify-around lg:ml-16 p-1 lg:text-base text-sm rounded-2xl bg-[#f4f0e7] mt-4 font-bold">
             <button
                 onClick={() => setContextRange("Week")} // Pass 'Week', context will handle 'weekly'
                 className={`${
