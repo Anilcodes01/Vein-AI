@@ -10,6 +10,7 @@ import { Nunito } from "next/font/google";
 import { Lexend } from 'next/font/google';
 import { InsightsProvider } from '@/contexts/InsightsContext';
 
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
