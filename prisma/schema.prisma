@@ -163,8 +163,10 @@ model UserNutritionLog {
   totalFat      Float            @default(0.0)
   totalCarbs    Float            @default(0.0)
   totalWaterMl  Int              @default(0)
+  totalCaloriesBurned Int @default(0)
   moodBefore    String?
   moodAfter     String?
+  exerciseEntry ExerciseEntry[]
 
   user      User     @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
@@ -193,6 +195,19 @@ model NutritionEntry {
   waterMl     Int
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt
+}
+
+model ExerciseEntry {
+  id String @id @default(uuid())
+  logId String
+  log UserNutritionLog @relation(fields: [logId], references: [id], onDelete: Cascade)
+  time DateTime
+  description String
+  duration Int? 
+  caloriesBurned Int @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  source EntrySource @default(chat)
 }
 
 enum EntrySource {

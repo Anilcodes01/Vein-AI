@@ -6,10 +6,13 @@ import {
   Cookie,
   Drumstick,
   Send,
-  Clock
+  Clock,
+  Droplet,
+  Dumbbell
 } from "lucide-react";
 import { useRef, useState, FormEvent, ChangeEvent, ReactNode } from "react";
 import { TrackInputProps } from "@/lib/types";
+import { MdWater } from "react-icons/md";
 
 export default function TrackInput({ onSubmit, isSubmitting }: TrackInputProps) {
   const [input, setInput] = useState("");
@@ -70,9 +73,18 @@ export default function TrackInput({ onSubmit, isSubmitting }: TrackInputProps) 
       case 'lunch': return <UtensilsCrossed size={iconSize} />;
       case 'snack': return <Cookie size={iconSize} />;
       case 'dinner': return <Drumstick size={iconSize} />;
+      // case 'water': return <Droplet size={iconSize} />; // Assuming water uses the Clock icon
+      case 'exercise': return <Dumbbell size={iconSize} />; // Assuming exercise uses the Clock icon
       default: return <Clock size={iconSize} />; // Default icon if mealtime is unexpected
     }
   };
+
+  const getPlaceholderText = () => {
+if (mealTime.toLowerCase() === 'exercise') {
+return "How much did you burned today?";
+}
+return "What did you eat or drink today?";
+};
 
   return (
     // Responsive outer container:
@@ -83,7 +95,7 @@ export default function TrackInput({ onSubmit, isSubmitting }: TrackInputProps) 
         <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-800 overflow-hidden">
           {/* Meal time buttons area: responsive padding and button content */}
           <div className="flex flex-wrap gap-1.5 sm:gap-2 p-2 sm:p-3 border-b border-gray-100 dark:border-gray-800">
-            {(["breakfast", "lunch", "snack", "dinner"] as const).map((time) => (
+            {(["breakfast", "lunch", "snack", "dinner",  'exercise'] as const).map((time) => (
               <button
                 key={time}
                 type="button"
@@ -111,7 +123,7 @@ export default function TrackInput({ onSubmit, isSubmitting }: TrackInputProps) 
               ref={textareaRef}
               onChange={handleInput}
               value={input}
-              placeholder="What did you eat or drink today?"
+              placeholder={getPlaceholderText()}
               className="w-full resize-none outline-none bg-transparent text-sm sm:text-base text-gray-800 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
               rows={2} // min rows, will expand
               style={{ minHeight: "50px" }} // ensures a minimum height

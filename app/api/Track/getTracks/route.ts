@@ -38,6 +38,18 @@ export async function GET(req: NextRequest) {
     const nutritionLogs = await prisma.userNutritionLog.findMany({
       where: whereClause,
       include: {
+        exerciseEntry: {
+          select: {
+            id: true,
+            time: true,
+            description: true,
+            caloriesBurned: true,
+            createdAt: true,
+            updatedAt: true,
+            source: true,
+            duration: true
+          }
+        },
         entries: {
           select: {
             id: true,
@@ -53,6 +65,7 @@ export async function GET(req: NextRequest) {
             createdAt: true,
             updatedAt: true,
           },
+          
           orderBy: {
             time: "asc",
           },
