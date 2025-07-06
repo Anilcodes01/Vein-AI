@@ -26,9 +26,12 @@ export const authOptions = {
           where: { email: credentials.email } 
         });
 
-        if (!user || !user.password) return null;
+        const isValid = await bcrypt.compare(
+          credentials.password,
+          user?.password || "$2a$10$abcdefghijklmnopqrstuv" 
+        );
 
-        const isValid = await bcrypt.compare(credentials.password, user.password);
+        if (!user || !user.password || !isValid) return null;
         if (!isValid) return null;
 
         return {
