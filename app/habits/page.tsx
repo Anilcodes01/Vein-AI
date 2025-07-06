@@ -6,7 +6,7 @@ import Appbar from "@/components/Landing/Appbar";
 import TrackComp from "@/components/Track/TrackComp";
 import HabitsComp from "@/components/Habits/HabitsComp";
 
-export default function DashboardPage() {
+export default function HabitsPage() {
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-gray-50"> 
       <Appbar />

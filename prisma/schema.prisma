@@ -22,6 +22,7 @@ model User {
   conversations    Conversation[]
   userNutritionLog UserNutritionLog[]
   streak           Streak[]
+  habits           Habit[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -229,4 +230,58 @@ model Streak {
   updatedAt   DateTime @updatedAt
 
   @@unique([userId, type]) 
+}
+
+
+
+model Habit {
+  id            String      @id @default(cuid())
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  name          String      // Habit Name (e.g., "Read a book")
+  reason        String?     // Why do you want to build this habit?
+  icon          String?     // Emoji or icon identifier
+
+  type          HabitType   // The kind of habit
+  target        Int?        // e.g., 10 (pages), 20 (minutes). Null for 'check-in'.
+  targetUnit    String?     // e.g., "reps", "mins". Null for 'check-in'.
+
+  // e.g., ["MONDAY", "WEDNESDAY", "FRIDAY"]
+  frequencyDays DayOfWeek[]
+
+  timeOfDay     TimeOfDay?  // Optional: Morning, Afternoon, etc.
+  reminders     Boolean     @default(false)
+  reminderTime  String?     // Stored as "HH:MM" format if reminders are on
+
+  // A habit might be for a specific duration, e.g., a "30-day challenge"
+  startDate     DateTime    @default(now())
+  endDate       DateTime?
+
+  // Relation to the User model
+  user          User        @relation(fields: [userId], references: [id])
+  userId        String
+}
+
+enum HabitType {
+  CHECK_IN // Simple yes/no
+  COUNT    // Count-based (e.g., push-ups)
+  TIME     // Time-based (e.g., meditation)
+}
+
+enum DayOfWeek {
+  SUNDAY
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+}
+
+enum TimeOfDay {
+  ANY
+  MORNING
+  AFTERNOON
+  EVENING
 }

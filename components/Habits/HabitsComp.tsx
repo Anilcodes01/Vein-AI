@@ -1,10 +1,50 @@
-
+"use client";
+import React, { useState, useEffect, useCallback } from "react";
+import HabitsHeader from "./Header";
+import AddNewHabit from "./AddNewHabit";
+import HabitList from "./HabitList";
+import { Habit } from "@/types";
 
 export default function HabitsComp() {
-    return (
-        <div className="flex flex-col items-center w-full justify-center h-screen">
-        <h1 className="text-2xl font-bold mb-4">Habits Page</h1>
-        <p className="text-gray-600">This is the habits page content.</p>
-        </div>
-    );
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [habits, setHabits] = useState<Habit[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchHabits = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/habits/gethabits");
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || "Failed to fetch habits");
+      }
+      setHabits(data.habits);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchHabits();
+  }, [fetchHabits]);
+
+  return (
+    <div className="flex w-full flex-col bg-[#fcfbf8] lg:pl-64 lg:mr-8 overflow-y-auto hide-scrollbar p-4 mb-16 lg:mb-0 lg:p-6">
+      <div className="lg:ml-12">
+        <HabitsHeader onAddHabitClick={() => setIsModalOpen(true)} />
+        <HabitList habits={habits} isLoading={isLoading} error={error} />
+      </div>
+
+      <AddNewHabit
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onHabitCreated={fetchHabits}
+      />
+    </div>
+  );
 }
