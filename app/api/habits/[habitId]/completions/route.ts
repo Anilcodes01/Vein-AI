@@ -8,7 +8,6 @@ const dateSchema = z.object({
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format. Expected YYYY-MM-DD.'),
 });
 
-// Helper function (remains the same)
 async function verifyHabitOwner(habitId: string, userId: string) {
     const habit = await prisma.habit.findUnique({
         where: { id: habitId },
@@ -19,19 +18,22 @@ async function verifyHabitOwner(habitId: string, userId: string) {
 // Mark a habit as complete for a given date
 export async function POST(
   req: Request,
-  { params }: { params: { habitId: string } }
+  context: { params: Promise<{ habitId: string }> }
 ) {
   try {
+    // Await params first
+    const params = await context.params;
+    
+    // Get request body
+    const body = await req.json();
+
+    // Get session
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
-
-    // --- THIS IS THE FIX ---
-    // Await the body parsing *before* accessing params.
-    const body = await req.json();
-
-    // Now it is safe to access params and perform checks.
+    
+    // Verify habit ownership
     if (!(await verifyHabitOwner(params.habitId, session.user.id))) {
       return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
     }
@@ -40,7 +42,7 @@ export async function POST(
 
     const newCompletion = await prisma.habitCompletion.create({
       data: {
-        habitId: params.habitId, // This is now safe
+        habitId: params.habitId,
         userId: session.user.id,
         date: new Date(date),
       },
@@ -59,20 +61,19 @@ export async function POST(
 // Un-mark a habit as complete for a given date
 export async function DELETE(
   req: Request,
-  { params }: { params: { habitId: string } }
+  context: { params: Promise<{ habitId: string }> }
 ) {
   try {
+    // Await params first
+    const params = await context.params;
+    
+    // Get session
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
 
-    // --- THIS IS THE FIX ---
-    // The DELETE request has no body, but we still need to "unlock" the request context.
-    // The simplest way is to just let the code proceed. The warning is more critical for POST/PUT.
-    // However, the principle remains: `params` is available after the request stream is handled.
-
-    // It's safe to access params here.
+    // Verify habit ownership
     if (!(await verifyHabitOwner(params.habitId, session.user.id))) {
       return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
     }
@@ -88,7 +89,7 @@ export async function DELETE(
     await prisma.habitCompletion.delete({
       where: {
         habitId_date: {
-          habitId: params.habitId, // This is now safe
+          habitId: params.habitId,
           date: new Date(validation.data),
         },
       },
