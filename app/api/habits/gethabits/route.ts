@@ -13,7 +13,7 @@ export async function GET(req: Request) {
 
         const habits = await prisma.habit.findMany({
             where: { userId },
-            orderBy: { createdAt: 'desc' },
+            orderBy: { createdAt: 'asc' },
             include: {
                 completions: {
                     select: {
