@@ -1,7 +1,7 @@
-import { authOptions } from "@/app/lib/authOptions";
-import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
 import prisma from "@/app/lib/prisma";
+import { authOptions } from "@/app/lib/authOptions";
 
 export async function GET(req: Request) {
     try {
@@ -14,34 +14,24 @@ export async function GET(req: Request) {
         const habits = await prisma.habit.findMany({
             where: { userId },
             orderBy: { createdAt: 'desc' },
-           select: {
-                id: true,
-                name: true,
-                reason: true,
-                frequencyDays: true,
-                icon: true,
-                type: true,
-                target: true,
-                targetUnit: true,
-                timeOfDay: true,  
-                reminderTime: true,
-
-            }
+            include: {
+                completions: {
+                    select: {
+                        date: true,
+                    },
+                },
+            },
         });
 
        return NextResponse.json({
             message: "Habits fetched successfully",
-            habits: habits.map(habit => ({
-                ...habit,
-                frequencyDays: habit.frequencyDays.map(day => day.toUpperCase()), 
-            }))
-        }, { status: 200
-       })
+            habits: habits
+        }, { status: 200 });
+
     } catch (error) {
         return NextResponse.json({
             message: "Error fetching habits",
             error: error instanceof Error ? error.message : "Unknown error"
-        }, { status: 500
-        })
+        }, { status: 500 });
     }
 }

@@ -4,6 +4,7 @@ import HabitsHeader from "./Header";
 import AddNewHabit from "./AddNewHabit";
 import HabitList from "./HabitList";
 import { Habit } from "@/types";
+import { HabitCompletion } from "@/types";
 
 export default function HabitsComp() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -33,11 +34,25 @@ export default function HabitsComp() {
     fetchHabits();
   }, [fetchHabits]);
 
+
+   const handleHabitUpdate = (habitId: string, newCompletions: HabitCompletion[]) => {
+    setHabits(prevHabits => 
+      prevHabits.map(habit =>
+        habit.id === habitId ? { ...habit, completions: newCompletions } : habit
+      )
+    );
+  };
+
   return (
     <div className="flex w-full flex-col bg-[#fcfbf8] lg:pl-64 lg:mr-8 overflow-y-auto hide-scrollbar p-4 mb-16 lg:mb-0 lg:p-6">
       <div className="lg:ml-12">
         <HabitsHeader onAddHabitClick={() => setIsModalOpen(true)} />
-        <HabitList habits={habits} isLoading={isLoading} error={error} />
+         <HabitList 
+          habits={habits} 
+          isLoading={isLoading} 
+          error={error} 
+          onUpdateHabit={handleHabitUpdate} 
+        />
       </div>
 
       <AddNewHabit

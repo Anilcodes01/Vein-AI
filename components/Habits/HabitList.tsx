@@ -1,14 +1,16 @@
 import React from 'react';
 import { Habit } from '@/types';
 import HabitCard from './HabitCard';
+import { HabitCompletion } from '@/types';
 
 type HabitListProps = {
   habits: Habit[];
   isLoading: boolean;
   error: string | null;
+  onUpdateHabit: (habitId: string, newCompletions: HabitCompletion[]) => void;
 };
 
-export default function HabitList({ habits, isLoading, error }: HabitListProps) {
+export default function HabitList({ habits, isLoading, error, onUpdateHabit }: HabitListProps) {
   if (isLoading) {
     return <div className="text-center text-gray-500 mt-8">Loading habits...</div>;
   }
@@ -29,7 +31,7 @@ export default function HabitList({ habits, isLoading, error }: HabitListProps) 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
       {habits.map((habit) => (
-        <HabitCard key={habit.id} habit={habit} />
+         <HabitCard key={habit.id} habit={habit} onUpdate={onUpdateHabit} />
       ))}
     </div>
   );

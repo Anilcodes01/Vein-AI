@@ -33,4 +33,9 @@ export type Habit = {
   targetUnit: string | null;
   timeOfDay: string | null;
   reminderTime: string | null;
+  completions: HabitCompletion[];
+};
+
+export type HabitCompletion = {
+  date: string; 
 };
