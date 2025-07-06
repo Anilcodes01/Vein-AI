@@ -18,7 +18,7 @@ import {
   FaBars,
   FaTimes
 } from "react-icons/fa";
-import { Globe } from 'lucide-react';
+import { Globe, CalendarDays } from 'lucide-react';
 
 interface NavItem {
   name: string;
@@ -35,6 +35,7 @@ const navItems: NavItem[] = [
   { name: "History", href: "/history", icon: FaHistory },
   { name: "Reports", href: "/reports", icon: FaFileAlt },
   { name: "Community", href: "/community", icon: Globe },
+  {name: "Habits", href: "/habits", icon: CalendarDays },
 ];
 
 const footerNavItems: NavItem[] = [
