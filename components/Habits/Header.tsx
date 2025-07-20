@@ -1,12 +1,13 @@
 
 import React from 'react';
-import { Plus } from 'lucide-react';
+import { Plus, Flame } from 'lucide-react';
 
 type HabitsHeaderProps = {
   onAddHabitClick: () => void;
+  onStreaksClick: () => void;
 };
 
-export default function HabitsHeader({ onAddHabitClick }: HabitsHeaderProps) {
+export default function HabitsHeader({ onAddHabitClick, onStreaksClick }: HabitsHeaderProps) {
   return (
     <div className="mb-6 lg:mb-8">
       {/* Desktop Layout */}
@@ -28,10 +29,10 @@ export default function HabitsHeader({ onAddHabitClick }: HabitsHeaderProps) {
             Add Habit
           </button>
           <button
-            onClick={onAddHabitClick}
-            className="bg-emerald-600 cursor-pointer hover:bg-emerald-700 text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 shadow-sm hover:shadow-md active:scale-95 flex items-center gap-2"
+            onClick={onStreaksClick}
+            className="bg-white border border-gray-300 dark:bg-gray-700 dark:border-gray-600 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 px-6 py-3 rounded-xl font-medium transition-all duration-200 shadow-sm hover:shadow-md active:scale-95 flex items-center gap-2"
           >
-            <Plus size={20} />
+            <Flame size={20} className="text-orange-500"/>
             Streaks
           </button>
         </div>

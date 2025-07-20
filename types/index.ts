@@ -22,19 +22,22 @@ export type AddHabitModalProps = {
   onHabitCreated: () => void;
 };
 
-export type Habit = {
+export interface Habit {
   id: string;
   name: string;
+  reason?: string;
   icon: string;
-  reason: string | null;
+  type: HabitType;
+  target?: number;
+  targetUnit?: string;
   frequencyDays: string[];
-  type: 'CHECK_IN' | 'COUNT' | 'TIME';
-  target: number | null;
-  targetUnit: string | null;
-  timeOfDay: string | null;
-  reminderTime: string | null;
+  timeOfDay: 'ANY' | 'MORNING' | 'AFTERNOON' | 'EVENING';
+  startDate: string; 
+  endDate?: string;
   completions: HabitCompletion[];
-};
+  currentStreak: number;
+  longestStreak: number;
+}
 
 export type HabitCompletion = {
   date: string; 
