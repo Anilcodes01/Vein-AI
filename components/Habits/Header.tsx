@@ -19,13 +19,20 @@ export default function HabitsHeader({ onAddHabitClick }: HabitsHeaderProps) {
             Track your habits and gain insights into your habits and consistency.
           </p>
         </div>
-        <div className="flex-shrink-0 ml-6">
+        <div className="flex gap-4 ml-6">
           <button
             onClick={onAddHabitClick}
-            className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 shadow-sm hover:shadow-md active:scale-95 flex items-center gap-2"
+            className="bg-emerald-600 cursor-pointer hover:bg-emerald-700 text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 shadow-sm hover:shadow-md active:scale-95 flex items-center gap-2"
           >
             <Plus size={20} />
             Add Habit
+          </button>
+          <button
+            onClick={onAddHabitClick}
+            className="bg-emerald-600 cursor-pointer hover:bg-emerald-700 text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 shadow-sm hover:shadow-md active:scale-95 flex items-center gap-2"
+          >
+            <Plus size={20} />
+            Streaks
           </button>
         </div>
       </div>
@@ -49,6 +56,7 @@ export default function HabitsHeader({ onAddHabitClick }: HabitsHeaderProps) {
             <Plus size={20} />
             Add New Habit
           </button>
+         
         </div>
       </div>
     </div>
