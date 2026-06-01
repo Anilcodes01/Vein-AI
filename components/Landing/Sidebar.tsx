@@ -33,9 +33,7 @@ const navItems: NavItem[] = [
   { name: "Ask Leo", href: "/askAI", icon: RiGeminiFill },
   { name: "Analysis", href: "/analysis", icon: MdOutlineAnalytics },
    {name: "Habits", href: "/habits", icon: CalendarDays },
-  { name: "History", href: "/history", icon: FaHistory },
-  { name: "Reports", href: "/reports", icon: FaFileAlt },
-  { name: "Community", href: "/community", icon: Globe },
+
  
 ];
 

@@ -1,16 +1,19 @@
+import { createGoogleGenAIClient } from "@/app/lib/googleGenAICompat";
 import { NextResponse } from "next/server";
-import { GoogleGenAI } from "@google/genai";
 import {  SystemPromptModel, SystemPromptUser } from "@/lib/systemprompt";
-
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 let chat = null;
 let userData = {}; 
 
-function initChat() {
+async function initChat() {
   if (!chat) {
+    if (!process.env.GEMINI_API_KEY) {
+      throw new Error("GEMINI_API_KEY is not configured");
+    }
+
+    const ai = await createGoogleGenAIClient(process.env.GEMINI_API_KEY);
     chat = ai.chats.create({
-      model: "gemini-2.0-flash",
+      model: "gemini-2.5-flash-lite",
       history: [
         {
           role: "user",
@@ -35,7 +38,7 @@ function initChat() {
 
 async function generateGeminiResponse(userMessage) {
   try {
-    initChat();
+    await initChat();
 
     const response = await chat.sendMessage({
       message: userMessage,

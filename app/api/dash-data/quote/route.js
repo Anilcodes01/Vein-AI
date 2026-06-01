@@ -1,18 +1,19 @@
 import { authOptions } from "@/app/lib/authOptions";
+import { createGoogleGenAIClient } from "@/app/lib/googleGenAICompat";
 import prisma from "@/app/lib/prisma";
-import { GoogleGenAI } from "@google/genai";
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 import { format } from 'date-fns-tz';
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+async function createChat() {
+  if (!process.env.GEMINI_API_KEY) {
+    throw new Error("GEMINI_API_KEY is not configured");
+  }
 
-let chat = null;
+  const ai = await createGoogleGenAIClient(process.env.GEMINI_API_KEY);
 
-function initChat() {
-  if (!chat) {
-    chat = ai.chats.create({
-      model: "gemini-2.0-flash",
+  return ai.chats.create({
+      model: "gemini-2.5-flash-lite",
       history: [
         {
           role: "user",
@@ -35,7 +36,6 @@ function initChat() {
         temperature: 0.4,
       },
     });
-  }
 }
 
 async function generateMotivationalQuote({
@@ -45,7 +45,7 @@ async function generateMotivationalQuote({
   nutritionalLogData,
 }) {
   try {
-    initChat();
+    const chat = await createChat();
 
     const context = `
   User details:
@@ -95,7 +95,7 @@ export async function GET() {
     const userId = session.user.id;
     const name = session.user.name;
 
-    const userDetails =  prisma.userDetails.findFirst({
+    const userDetails = await prisma.userDetails.findFirst({
       where: { userId },
       select: {
         age: true,
@@ -104,7 +104,6 @@ export async function GET() {
         weight: true,
         dietaryApproaches: true,
         identity: true,
-        timezone: true,
       },
     });
 

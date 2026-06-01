@@ -1,12 +1,15 @@
+import { createGoogleGenAIClient } from "@/app/lib/googleGenAICompat";
 import { NextResponse } from "next/server";
-import { createUserContent, GoogleGenAI } from "@google/genai";
-
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 async function generateGeminiResponse(string) {
   try {
+    if (!process.env.GEMINI_API_KEY) {
+      throw new Error("GEMINI_API_KEY is not configured");
+    }
+
+    const ai = await createGoogleGenAIClient(process.env.GEMINI_API_KEY);
     const chat = ai.chats.create({
-        model: "gemini-2.0-flash",
+        model: "gemini-2.5-flash-lite",
         history: [
           {
             role: "user",

@@ -6,7 +6,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const response = await axios.post("https://api.gemini.com/v1/generate", {
-      model: "gemini-2.0-flash",
+      model: "gemini-2.5-flash-lite",
       prompt,
     }, {
       headers: { Authorization: `Bearer AIzaSyCGepVLd8aJauaVvyb28_ZVrorpEkyBFB8` }

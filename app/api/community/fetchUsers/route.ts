@@ -3,9 +3,9 @@
 import { authOptions } from "@/app/lib/authOptions";
 import prisma from "@/app/lib/prisma";
 import { getServerSession } from "next-auth";
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
     const session = await getServerSession(authOptions);
 
@@ -23,20 +23,20 @@ export async function GET(req: NextRequest) {
         id: true,
         name: true,
         username: true,
-        streak: {
-          select: {
-            current: true,
-            longest: true,
-          }
-        },
         image: true,
       },
     });
 
+    const users = fetchedUsers.map((user) => ({
+      ...user,
+      // The current Prisma schema does not expose a user->streak relation.
+      streak: null,
+    }));
+
     return NextResponse.json(
       {
         message: "Users fetched successfully",
-        users: fetchedUsers,
+        users,
       },
       { status: 200 }
     );

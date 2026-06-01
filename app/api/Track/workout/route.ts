@@ -1,13 +1,19 @@
 import { authOptions } from "@/app/lib/authOptions";
+import { createGoogleGenAIClient } from "@/app/lib/googleGenAICompat";
 import prisma from "@/app/lib/prisma";
-import { GoogleGenAI } from "@google/genai";
 import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+export const runtime = "nodejs";
 
 async function callGeminiExerciseExtractor(description: string) {
   try {
+    if (!process.env.GEMINI_API_KEY) {
+      throw new Error("GEMINI_API_KEY is not configured");
+    }
+
+    const { Type } = await import("@google/genai");
+    const ai = await createGoogleGenAIClient(process.env.GEMINI_API_KEY);
     const response = await ai.models.generateContent({
       model: "gemini-2.0-flash",
       contents: `
@@ -23,6 +29,17 @@ async function callGeminiExerciseExtractor(description: string) {
           
           Respond ONLY with the JSON object. Do not include any additional text or markdown.
           `,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            duration: { type: Type.NUMBER },
+            caloriesBurned: { type: Type.NUMBER },
+          },
+          required: ["caloriesBurned"],
+        },
+      },
     });
 
     if (!response.text) {

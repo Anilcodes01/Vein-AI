@@ -1,18 +1,19 @@
 import { authOptions } from "@/app/lib/authOptions";
+import { createGoogleGenAIClient } from "@/app/lib/googleGenAICompat";
 import prisma from "@/app/lib/prisma";
-import { GoogleGenAI } from "@google/genai";
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 import { format } from 'date-fns-tz';
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+async function createChat() {
+  if (!process.env.GEMINI_API_KEY) {
+    throw new Error("GEMINI_API_KEY is not configured");
+  }
 
-let chat = null;
+  const ai = await createGoogleGenAIClient(process.env.GEMINI_API_KEY);
 
-function initChat() {
-  if (!chat) {
-    chat = ai.chats.create({
-      model: "gemini-2.0-flash",
+  return ai.chats.create({
+      model: "gemini-2.5-flash-lite",
       history: [
         {
           role: "user",
@@ -35,7 +36,6 @@ function initChat() {
         temperature: 0.4,
       },
     });
-  }
 }
 
 async function generateGeminiResponse({
@@ -46,7 +46,7 @@ async function generateGeminiResponse({
   nutritionalLogData,
 }) {
   try {
-    initChat();
+    const chat = await createChat();
 
     // Get current time in user's timezone
     const userTimezone = userDetails?.timezone || 'Asia/Kolkata';

@@ -2,7 +2,7 @@ import { authOptions } from "@/app/lib/authOptions";
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 
-const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
+const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent";
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
 export async function GET() {

@@ -1,52 +1,35 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { GoogleGenAI } from "@google/genai";
 import prisma from "../../lib/prisma";
 import { authOptions } from "@/app/lib/authOptions";
-import {
-  ActivityLevel,
-  AverageSleep,
-  FitnessSuperpower,
-  Identity,
-} from "@prisma/client";
+import { generateNutritionRecommendation } from "@/app/lib/gemini";
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-async function queryGemini(userData: any) {
-  const response = await ai.models.generateContent({
-    model: "gemini-2.0-flash",
-    contents: `Based on the following user information, provide nutritional recommendations in JSON format exactly as specified:
-User Data:
-- Age: ${userData.age}
-- Height: ${userData.height}
-- Weight: ${userData.weight}
-- Identity: ${userData.identity}
-- Main Goals: ${userData.mainGoals}
-- Average Sleep: ${userData.averageSleep}
-- Activity Level: ${userData.activityLevel}
-- Dietary Approaches: ${userData.dietaryApproaches}
-- Biggest Challenges: ${userData.biggestChallenges}
-- Preferred Workouts: ${userData.preferredWorkouts}
-- Fitness Superpower: ${userData.fitnessSuperpower}
+export const runtime = "nodejs";
 
-Return the data in this exact JSON format:
-nutritionalData = {
-  "calorieIntake": number,
-  "proteinIntake": number,
-  "carbohydrateIntake": number,
-  "fatIntake": number,
-  "waterIntakeLiters": number
-}
+const IDENTITY_VALUES = ["Male", "Female", "Other"] as const;
+const ACTIVITY_LEVEL_VALUES = [
+  "RELAXED_HOMEBODY",
+  "CASUAL_MOVER",
+  "PRETTY_ACTIVE",
+  "FITNESS_BEAST",
+] as const;
+const AVERAGE_SLEEP_VALUES = [
+  "LESS_THAN_4",
+  "BETWEEN_4_TO_6",
+  "SOLID_6_TO_8",
+  "MORE_THAN_8",
+] as const;
+const FITNESS_SUPERPOWER_VALUES = [
+  "NEVER_FEEL_TIRED",
+  "INSTANT_MUSCLE_GAIN",
+  "EFFORTLESS_HEALTHY_EATING",
+  "UNSHAKEABLE_MOTIVATION",
+] as const;
 
-Return : Array<nutritionalData>
-`,
-  });
-  const rawData = response.text!;
-  const cleanedJsonString = rawData.replace(/```json\n|\n```/g, "");
-  const parsedArray = JSON.parse(cleanedJsonString);
-  const nutritionalData = parsedArray[0];
-  console.log(nutritionalData);
-  return nutritionalData;
-}
+type IdentityValue = (typeof IDENTITY_VALUES)[number];
+type ActivityLevelValue = (typeof ACTIVITY_LEVEL_VALUES)[number];
+type AverageSleepValue = (typeof AVERAGE_SLEEP_VALUES)[number];
+type FitnessSuperpowerValue = (typeof FITNESS_SUPERPOWER_VALUES)[number];
 
 export async function POST(req: Request) {
   try {
@@ -66,8 +49,15 @@ export async function POST(req: Request) {
       );
     }
 
-    function safeEnumValue<T>(value: any, enumType: any): T | null {
-      if (Object.values(enumType).includes(value)) {
+    if (body.userId !== userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    function safeEnumValue<T extends string>(
+      value: unknown,
+      allowedValues: readonly T[]
+    ): T | null {
+      if (typeof value === "string" && allowedValues.includes(value as T)) {
         return value as T;
       }
       return null;
@@ -75,20 +65,20 @@ export async function POST(req: Request) {
 
     const userDetailsData = {
       age: body.age ? parseInt(body.age) : null,
-      identity: safeEnumValue<Identity>(body.identity, Identity),
+      identity: safeEnumValue<IdentityValue>(body.identity, IDENTITY_VALUES),
       height: body.height ? parseInt(body.height) : null,
       weight: body.weight ? parseInt(body.weight) : null,
-      activityLevel: safeEnumValue<ActivityLevel>(
+      activityLevel: safeEnumValue<ActivityLevelValue>(
         body.activityLevel,
-        ActivityLevel
+        ACTIVITY_LEVEL_VALUES
       ),
-      averageSleep: safeEnumValue<AverageSleep>(
+      averageSleep: safeEnumValue<AverageSleepValue>(
         body.averageSleep,
-        AverageSleep
+        AVERAGE_SLEEP_VALUES
       ),
-      fitnessSuperpower: safeEnumValue<FitnessSuperpower>(
+      fitnessSuperpower: safeEnumValue<FitnessSuperpowerValue>(
         body.fitnessSuperpower,
-        FitnessSuperpower
+        FITNESS_SUPERPOWER_VALUES
       ),
       mainGoals: body.maingoal ? [body.maingoal] : [],
       preferredWorkouts: body.preferredWorkouts ? [body.preferredWorkouts] : [],
@@ -97,7 +87,7 @@ export async function POST(req: Request) {
       rawData: body,
     };
 
-    const result = await prisma.$transaction([
+    await prisma.$transaction([
       prisma.user.update({
         where: { id: body.userId },
         data: {
@@ -114,7 +104,8 @@ export async function POST(req: Request) {
       }),
     ]);
 
-    const nutritionalData = await queryGemini(userDetailsData);
+    const nutritionResult = await generateNutritionRecommendation(userDetailsData);
+    const nutritionalData = nutritionResult.data;
 
     const saveUserDashData = await prisma.userDashData.create({
       data: {
@@ -128,7 +119,11 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json(
-      { success: true, data: saveUserDashData },
+      {
+        success: true,
+        data: saveUserDashData,
+        recommendationSource: nutritionResult.source,
+      },
       { status: 200 }
     );
   } catch (error) {

@@ -1,15 +1,18 @@
 import { authOptions } from "@/app/lib/authOptions";
+import { createGoogleGenAIClient } from "@/app/lib/googleGenAICompat";
 import prisma from "@/app/lib/prisma";
-import { GoogleGenAI } from "@google/genai";
 import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-
 async function callGeminiNutritionExtractory(description: string) {
   try {
+    if (!process.env.GEMINI_API_KEY) {
+      throw new Error("GEMINI_API_KEY is not configured");
+    }
+
+    const ai = await createGoogleGenAIClient(process.env.GEMINI_API_KEY);
     const response = await ai.models.generateContent({
-      model: "gemini-2.0-flash",
+      model: "gemini-2.5-flash-lite",
       contents: `
           Extract nutritional info from this sentence: "${description}".
           Return a JSON object with these keys:
@@ -72,50 +75,15 @@ async function updateUserWaterStreak(userId: string, logDate: Date, totalWaterMl
       const goalMet = totalWaterMlToday >= waterGoal;
 
       console.log(`User ${userId} water goal: ${waterGoal}ml, Today's total: ${totalWaterMlToday}ml. Goal met: ${goalMet}`);
+      // The current Prisma schema no longer includes a persisted streak model.
+      // Return a lightweight computed response so callers continue to work.
+      const updatedStreak = {
+          current: goalMet ? 1 : 0,
+          longest: goalMet ? 1 : 0,
+          lastUpdated: logDate.toISOString(),
+      };
 
-      const startOfDay = new Date(Date.UTC(logDate.getUTCFullYear(), logDate.getUTCMonth(), logDate.getUTCDate()));
-      const startOfYesterday = new Date(startOfDay);
-      startOfYesterday.setUTCDate(startOfYesterday.getUTCDate() - 1);
-
-      const currentStreak = await prisma.streak.findUnique({
-          where: { userId_type: { userId, type: 'water' } },
-      });
-
-      let newCurrentStreak = 0;
-      let newLongestStreak = currentStreak?.longest ?? 0;
-
-      const isConsecutive = currentStreak && currentStreak.lastUpdated >= startOfYesterday && currentStreak.lastUpdated < startOfDay;
-
-      if (goalMet) {
-          if (isConsecutive) {
-              newCurrentStreak = (currentStreak?.current ?? 0) + 1;
-          } else {
-              newCurrentStreak = 1;
-          }
-          newLongestStreak = Math.max(newLongestStreak, newCurrentStreak);
-      } else {
-          newCurrentStreak = 0;
-      }
-
-      console.log(`Values before upsert: newCurrentStreak=${newCurrentStreak}, newLongestStreak=${newLongestStreak}, lastUpdated=${startOfDay.toISOString()}`);
-
-      const updatedStreak = await prisma.streak.upsert({
-          where: { userId_type: { userId, type: 'water' } },
-          create: {
-              userId,
-              type: 'water',
-              current: newCurrentStreak,
-              longest: newLongestStreak,
-              lastUpdated: startOfDay,
-          },
-          update: {
-              current: newCurrentStreak,
-              longest: newLongestStreak,
-              lastUpdated: startOfDay,
-          },
-      });
-
-      console.log(`Successfully updated/re-evaluated water streak for user ${userId}:`, updatedStreak);
+      console.log(`Returning computed water streak fallback for user ${userId}:`, updatedStreak);
       return updatedStreak;
 
   } catch (error) {

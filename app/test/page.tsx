@@ -4,7 +4,7 @@ import Appbar from "@/components/Landing/Appbar";
 import axios from "axios";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useState, ChangeEvent } from "react";
+import { useState, ChangeEvent, FormEvent } from "react";
 import { FormData } from "@/lib/types";
 
 export default function Test() {
@@ -23,7 +23,9 @@ export default function Test() {
     fitnessSuperpower: "",
   });
 
-  const { data: session } = useSession();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
+  const { data: session, status } = useSession();
   const userId = session?.user.id;
   const router = useRouter();
 
@@ -35,25 +37,37 @@ export default function Test() {
     }));
   };
 
-  const handleSubmit = async (e: any) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setSubmitError("");
+
     try {
       if (!userId) {
-        console.error("User ID is missing from session.");
+        setSubmitError("Please sign in before submitting your profile.");
         return;
       }
 
+      setIsSubmitting(true);
       const res = await axios.post("/api/test", {
         ...formData,
+        name: formData.name.trim(),
         userId,
       });
 
       if (res.status === 200) {
         console.log("user data saved successfully");
-        router.push('/dashboard');
+        router.push("/dashboard");
       }
     } catch (error: any) { 
-      console.error("Error while submitting data...", error.response?.data || error.message);
+      console.error(
+        "Error while submitting data...",
+        error.response?.data || error.message
+      );
+      setSubmitError(
+        error.response?.data?.error || "Unable to save your profile right now."
+      );
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -64,6 +78,11 @@ export default function Test() {
       </div>
       <div className="w-full max-w-2xl mt-12 rounded-lg  p-6">
         <h1 className="text-2xl font-bold text-center mb-6">Fitness Profile Form</h1>
+        {submitError ? (
+          <p className="mb-4 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+            {submitError}
+          </p>
+        ) : null}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -233,9 +252,14 @@ export default function Test() {
           <div className="flex justify-center pt-4">
             <button
               type="submit"
+              disabled={status === "loading" || isSubmitting || !userId}
               className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
             >
-              Submit
+              {status === "loading"
+                ? "Loading session..."
+                : isSubmitting
+                  ? "Submitting..."
+                  : "Submit"}
             </button>
           </div>
         </form>
